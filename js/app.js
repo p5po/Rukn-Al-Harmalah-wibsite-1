@@ -6,8 +6,16 @@
  */
 
 // Global Configuration
-const WHATSAPP_NUMBER = "966500000000";
+const WHATSAPP_NUMBER = "966504302102";
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQd4-PmHM5yhvJf3LAt5GzVLezEYB-WDHKft_VB_CCzVxd4ASap_WPEsk6zNcC04go7VaelDFcqAwYp/pub?output=csv";
+
+/**
+ * Generate a unique real estate inquiry ticket number
+ */
+function generateTicketId(prefix = "HRA") {
+  const randomDigits = Math.floor(10000 + Math.random() * 90000);
+  return `${prefix}-${randomDigits}`;
+}
 
 // Clean Luxury Architectural Fallback Image (used ONLY when image_url cell is empty or invalid)
 const DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80";
@@ -108,14 +116,20 @@ function getStatusBadge(status) {
 }
 
 /**
- * Build WhatsApp link for plot inquiry using exact cell values
+ * Build WhatsApp link for plot inquiry using exact cell values and a generated inquiry ticket
  */
 function buildPropertyWhatsAppLink(property) {
-  let message = `السلام عليكم ورحمة الله،\nأود الاستفسار عن تفاصيل العقار المعروض في ركن الحراملة:\n`;
-  if (property.title) message += `- العقار: ${property.title}\n`;
-  if (property.id) message += `- الكود: ${property.id}\n`;
-  if (property.district && property.district.trim()) message += `- الحي: ${property.district.trim()}\n`;
-  if (property.price && property.price.trim()) message += `- السعر: ${property.price.trim()}\n`;
+  const ticketId = generateTicketId("INQ");
+  let message = `🎫 *تذكرة استفسار عقاري جديدة*\n`;
+  message += `━━━━━━━━━━━━━━━━━━━━\n`;
+  message += `🏷️ *رقم التذكرة:* #${ticketId}\n`;
+  if (property.id) message += `📌 *كود العقار:* ${property.id}\n`;
+  if (property.title) message += `🏷️ *اسم العرض:* ${property.title}\n`;
+  if (property.district && property.district.trim()) message += `📍 *الحي:* ${property.district.trim()}\n`;
+  if (property.price && property.price.trim()) message += `💰 *السعر:* ${property.price.trim()}\n`;
+  message += `━━━━━━━━━━━━━━━━━━━━\n`;
+  message += `السلام عليكم ورحمة الله، أود الاستفسار عن تفاصيل هذا العقار وحجز موعد للمعاينة.\n`;
+  message += `شركة ركن الحراملة العقارية | 0504302102`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
@@ -872,7 +886,7 @@ function resetFilters() {
 }
 
 /**
- * Handle Contact Form Submission to WhatsApp
+ * Handle Contact Form Submission to WhatsApp with Official Ticket Generation & Modal Confirmation
  */
 function handleContactFormSubmit(event) {
   event.preventDefault();
@@ -881,16 +895,66 @@ function handleContactFormSubmit(event) {
   const requestType = document.getElementById("contact-type").value;
   const details = document.getElementById("contact-details").value.trim();
 
-  let message = `السلام عليكم ورحمة الله،\nلدي طلب تواصل جديد عبر الموقع الإلكتروني لشركة ركن الحراملة العقارية:\n`;
-  if (name) message += `👤 الاسم: ${name}\n`;
-  if (phone) message += `📱 الجوال: ${phone}\n`;
-  if (requestType) message += `📋 نوع الطلب: ${requestType}\n`;
-  if (details) message += `📝 التفاصيل: ${details}\n`;
+  // Generate official unique ticket ID
+  const ticketId = generateTicketId("HRA");
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("ar-SA");
+
+  let message = `🎫 *تذكرة طلب عقاري معتمدة*\n`;
+  message += `━━━━━━━━━━━━━━━━━━━━\n`;
+  message += `🏷️ *رقم التذكرة:* #${ticketId}\n`;
+  message += `📅 *التاريخ:* ${dateStr}\n`;
+  if (name) message += `👤 *الاسم:* ${name}\n`;
+  if (phone) message += `📱 *الجوال:* ${phone}\n`;
+  if (requestType) message += `📋 *نوع الطلب:* ${requestType}\n`;
+  if (details) message += `📝 *التفاصيل:* ${details}\n`;
+  message += `━━━━━━━━━━━━━━━━━━━━\n`;
+  message += `شركة ركن الحراملة العقارية | خدمة العملاء\n`;
+  message += `هاتف: 0504302102`;
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+  // Display Ticket Modal on Screen
+  const modal = document.getElementById("ticket-modal");
+  const ticketIdEl = document.getElementById("modal-ticket-id");
+  const ticketSummaryEl = document.getElementById("modal-ticket-summary");
+  const ticketWhatsappBtn = document.getElementById("modal-ticket-whatsapp-link");
+  const liveTicketBadge = document.getElementById("live-ticket-badge");
+
+  if (ticketIdEl) ticketIdEl.textContent = `#${ticketId}`;
+  if (liveTicketBadge) liveTicketBadge.textContent = `🎫 #${ticketId}`;
+
+  if (ticketSummaryEl) {
+    ticketSummaryEl.innerHTML = `
+      <div><strong>العميل:</strong> ${escapeHtml(name || "غير محدد")}</div>
+      <div><strong>الجوال:</strong> ${escapeHtml(phone || "-")}</div>
+      <div><strong>نوع الطلب:</strong> ${escapeHtml(requestType || "استفسار عام")}</div>
+    `;
+  }
+
+  if (ticketWhatsappBtn) {
+    ticketWhatsappBtn.href = whatsappUrl;
+  }
+
+  if (modal) {
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  // Open WhatsApp in new tab directly
   window.open(whatsappUrl, "_blank");
 
-  showToast("جارٍ فتح تطبيق واتساب لإرسال طلبك مباشرة...");
+  showToast(`تم إصدار تذكرة طلبك بنجاح: #${ticketId}`);
+}
+
+/**
+ * Close Ticket Confirmation Modal
+ */
+function closeTicketModal() {
+  const modal = document.getElementById("ticket-modal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  document.body.style.overflow = "auto";
 }
 
 /**
@@ -948,4 +1012,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (contactForm) {
     contactForm.addEventListener("submit", handleContactFormSubmit);
   }
+
+  // Ticket modal backdrop listener
+  const ticketBackdrop = document.getElementById("ticket-backdrop");
+  if (ticketBackdrop) {
+    ticketBackdrop.addEventListener("click", closeTicketModal);
+  }
+
+  // Escape key closes modal
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeTicketModal();
+    }
+  });
 });
