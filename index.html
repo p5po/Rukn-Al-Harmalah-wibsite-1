@@ -25,10 +25,10 @@
   <meta name="twitter:description" content="شركة ركن الحراملة العقارية - مرجعك الأول لتسويق وبيع وشراء الأراضي السكنية والتجارية والبلوكات في مخططات حي عريض بالرياض.">
   <meta name="twitter:image" content="images/L-gold-black-logo.png">
 
-  <!-- Google Font: Readex Pro -->
+  <!-- Google Font: Cairo (weights 400, 600, 700, 800) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -55,7 +55,7 @@
             }
           },
           fontFamily: {
-            sans: ['"Readex Pro"', 'sans-serif'],
+            sans: ['"Cairo"', 'sans-serif'],
           }
         }
       }
@@ -91,8 +91,11 @@
   </div>
 
   <!-- ================= STICKY GLASSMORPHIC NAVBAR ================= -->
-  <header class="sticky top-0 z-40 w-full glass-nav transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <header class="sticky top-0 z-40 w-full glass-nav transition-all duration-300 relative">
+    <!-- Progressive Backdrop Blur Overlay -->
+    <div class="progressive-blur-top"><div></div></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       <div class="flex items-center justify-between h-20">
         
         <!-- Logo on Right (RTL Start) -->
@@ -173,8 +176,11 @@
   <main>
     <!-- ================= HERO SECTION ================= -->
     <section class="relative pt-12 pb-24 md:pt-20 md:pb-32 overflow-hidden hero-pattern">
-      <!-- Background Luxury Glow Ambient -->
-      <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#C5A059]/10 blur-[140px] pointer-events-none rounded-full"></div>
+      <!-- Background Luxury Glow Ambient with Parallax -->
+      <div class="hero-ambient-glow absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-[#C5A059]/12 blur-[140px] pointer-events-none rounded-full"></div>
+
+      <!-- Architectural Masterplan Grid Lighting -->
+      <div class="architectural-grid absolute inset-0 z-0"></div>
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <!-- Brand Trust Label -->
@@ -358,42 +364,51 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           <!-- Service 1 -->
-          <div class="p-8 rounded-2xl bg-[#242424] border border-white/5 hover:border-[#C5A059]/40 transition group">
-            <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-              </svg>
+          <div class="p-8 rounded-2xl liquid-metal-card overflow-hidden transition group relative" data-reveal-card>
+            <div class="reveal-spotlight"></div>
+            <div class="relative z-10">
+              <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-[#DFBE7B] transition-colors">تسويق وبيع الأراضي في حي عريض</h3>
+              <p class="text-gray-400 text-sm leading-relaxed">
+                خبرة ميدانية واسعة بجميع مخططات وقطاعات حي عريض لتسويق القطع السكنية والتجارية بأعلى كفاءة.
+              </p>
             </div>
-            <h3 class="text-xl font-bold text-white mb-3">تسويق وبيع الأراضي في حي عريض</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              خبرة ميدانية واسعة بجميع مخططات وقطاعات حي عريض لتسويق القطع السكنية والتجارية بأعلى كفاءة.
-            </p>
           </div>
 
           <!-- Service 2 -->
-          <div class="p-8 rounded-2xl bg-[#242424] border border-white/5 hover:border-[#C5A059]/40 transition group">
-            <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-              </svg>
+          <div class="p-8 rounded-2xl liquid-metal-card overflow-hidden transition group relative" data-reveal-card>
+            <div class="reveal-spotlight"></div>
+            <div class="relative z-10">
+              <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-[#DFBE7B] transition-colors">توفير البلوكات والفرص الاستثمارية</h3>
+              <p class="text-gray-400 text-sm leading-relaxed">
+                تلبية طلبات المستثمرين والباحثين عن مواقع استراتيجية على الشوارع الرئيسية والتجارية في جنوب الرياض.
+              </p>
             </div>
-            <h3 class="text-xl font-bold text-white mb-3">توفير البلوكات والفرص الاستثمارية</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              تلبية طلبات المستثمرين والباحثين عن مواقع استراتيجية على الشوارع الرئيسية والتجارية في جنوب الرياض.
-            </p>
           </div>
 
           <!-- Service 3 -->
-          <div class="p-8 rounded-2xl bg-[#242424] border border-white/5 hover:border-[#C5A059]/40 transition group">
-            <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-              </svg>
+          <div class="p-8 rounded-2xl liquid-metal-card overflow-hidden transition group relative" data-reveal-card>
+            <div class="reveal-spotlight"></div>
+            <div class="relative z-10">
+              <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-3 group-hover:text-[#DFBE7B] transition-colors">الوساطة العقارية المعتمدة (فال)</h3>
+              <p class="text-gray-400 text-sm leading-relaxed">
+                إدارة الصفقات ونقل الملكيات وتوثيق العقود وفق أنظمة الهيئة العامة للعقار بكل شفافية وموثوقية.
+              </p>
             </div>
-            <h3 class="text-xl font-bold text-white mb-3">الوساطة العقارية المعتمدة (فال)</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              إدارة الصفقات ونقل الملكيات وتوثيق العقود وفق أنظمة الهيئة العامة للعقار بكل شفافية وموثوقية.
-            </p>
           </div>
 
         </div>

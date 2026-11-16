@@ -29,7 +29,7 @@
 }
 
 html, body {
-  font-family: 'Readex Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--color-dark-bg);
   color: #F3F4F6;
   direction: rtl;
@@ -38,9 +38,9 @@ html, body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Readex Pro', sans-serif;
+  font-family: 'Cairo', sans-serif;
   font-weight: 700;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
 }
 
 /* Custom Scrollbar */
@@ -82,10 +82,69 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .glass-nav {
-  background: rgba(18, 18, 18, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(197, 160, 89, 0.18);
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================================
+   MENGTO SKILL: PROGRESSIVE BLUR (Layered Backdrop Filters)
+   ======================================================== */
+.progressive-blur-top {
+  position: absolute;
+  top: 0;
+  inset-x: 0;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.progressive-blur-top::before,
+.progressive-blur-top::after,
+.progressive-blur-top > div {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.progressive-blur-top::before {
+  content: "";
+  z-index: 1;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 40%);
+  mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 40%);
+}
+
+.progressive-blur-top > div {
+  z-index: 2;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 75%);
+  mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 75%);
+}
+
+.progressive-blur-top::after {
+  content: "";
+  z-index: 3;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  -webkit-mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 100%);
+  mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* Architectural Grid Masterplan Lighting Overlay */
+.architectural-grid {
+  background-image: 
+    linear-gradient(to right, rgba(197, 160, 89, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(197, 160, 89, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 25%, black 25%, transparent 85%);
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 25%, black 25%, transparent 85%);
+  pointer-events: none;
 }
 
 /* ========================================================
@@ -108,32 +167,33 @@ h1, h2, h3, h4, h5, h6 {
   padding: 1.5px;
   background: conic-gradient(
     from var(--liquid-angle, 0deg),
-    transparent 15%,
-    rgba(197, 160, 89, 0.25) 35%,
-    #DFBE7B 48%,
-    #FFF5DF 52%,
-    #C5A059 56%,
-    rgba(197, 160, 89, 0.25) 68%,
-    transparent 88%
+    transparent 10%,
+    rgba(197, 160, 89, 0.25) 30%,
+    #DFBE7B 46%,
+    #FFF8E8 50%,
+    #C5A059 55%,
+    rgba(197, 160, 89, 0.25) 70%,
+    transparent 90%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-  opacity: 0.35;
-  transition: opacity 0.5s ease;
+  opacity: 0.4;
+  animation: liquidMetalSpin 8s linear infinite;
+  transition: opacity 0.4s ease, animation-duration 0.4s ease;
   z-index: 2;
 }
 
 .liquid-metal-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 28px -4px rgba(197, 160, 89, 0.16);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 28px -4px rgba(197, 160, 89, 0.25);
   border-color: transparent;
 }
 
 .liquid-metal-card:hover::before {
   opacity: 1;
-  animation: liquidMetalSpin 4s linear infinite;
+  animation-duration: 3.2s;
 }
 
 @keyframes liquidMetalSpin {
@@ -159,9 +219,9 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 1;
   background: radial-gradient(
     circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
-    rgba(223, 190, 123, 0.14) 0%,
-    rgba(197, 160, 89, 0.05) 50%,
-    transparent 80%
+    rgba(223, 190, 123, 0.16) 0%,
+    rgba(197, 160, 89, 0.08) 45%,
+    transparent 75%
   );
   transition: opacity 0.3s ease;
 }

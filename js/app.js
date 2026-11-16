@@ -715,26 +715,67 @@ function initGsapAnimations() {
   }
 
   // Hero Entrance Timeline
-  const heroTl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
+  const heroTl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.85 } });
   
   if (document.querySelector(".hero-badge")) {
-    heroTl.from(".hero-badge", { y: -20, opacity: 0, delay: 0.1 });
+    heroTl.from(".hero-badge", { y: -25, opacity: 0, scale: 0.96, delay: 0.1 });
   }
   if (document.querySelector(".hero-title")) {
-    heroTl.from(".hero-title", { y: 30, opacity: 0 }, "-=0.5");
+    heroTl.from(".hero-title", { y: 35, opacity: 0, scale: 0.98 }, "-=0.55");
   }
   if (document.querySelector(".hero-desc")) {
-    heroTl.from(".hero-desc", { y: 25, opacity: 0 }, "-=0.5");
+    heroTl.from(".hero-desc", { y: 25, opacity: 0 }, "-=0.55");
   }
   if (document.querySelector(".hero-ctas")) {
-    heroTl.from(".hero-ctas", { y: 20, opacity: 0, scale: 0.98 }, "-=0.5");
+    heroTl.from(".hero-ctas", { y: 20, opacity: 0, scale: 0.96 }, "-=0.5");
   }
   if (document.querySelectorAll(".hero-stats > div").length > 0) {
-    heroTl.from(".hero-stats > div", { y: 20, opacity: 0, stagger: 0.08 }, "-=0.4");
+    heroTl.from(".hero-stats > div", { y: 24, opacity: 0, stagger: 0.08 }, "-=0.4");
   }
 
-  // ScrollTrigger reveals on Section Titles
+  // Subtle Interactive Mouse Parallax on Hero Masterplan Grid & Ambient Glow
+  const heroSection = document.querySelector(".hero-pattern");
+  const heroAmbient = document.querySelector(".hero-ambient-glow");
+  const heroGrid = document.querySelector(".architectural-grid");
+  if (heroSection) {
+    heroSection.addEventListener("mousemove", (e) => {
+      const rect = heroSection.getBoundingClientRect();
+      const xPercent = (e.clientX - rect.left) / rect.width - 0.5;
+      const yPercent = (e.clientY - rect.top) / rect.height - 0.5;
+      if (heroAmbient) {
+        gsap.to(heroAmbient, { x: xPercent * 45, y: yPercent * 30, duration: 1.2, ease: "power2.out" });
+      }
+      if (heroGrid) {
+        gsap.to(heroGrid, { x: xPercent * 18, y: yPercent * 18, duration: 1.2, ease: "power2.out" });
+      }
+    });
+
+    heroSection.addEventListener("mouseleave", () => {
+      if (heroAmbient) gsap.to(heroAmbient, { x: 0, y: 0, duration: 1.5, ease: "power2.out" });
+      if (heroGrid) gsap.to(heroGrid, { x: 0, y: 0, duration: 1.5, ease: "power2.out" });
+    });
+  }
+
+  // ScrollTrigger reveals on Section Titles & Service Cards
   if (typeof ScrollTrigger !== "undefined") {
+    // Service Cards Staggered Reveal
+    const serviceCards = document.querySelectorAll("#services [data-reveal-card]");
+    if (serviceCards.length > 0) {
+      gsap.from(serviceCards, {
+        scrollTrigger: {
+          trigger: "#services",
+          start: "top 80%",
+          toggleActions: "play none none none"
+        },
+        y: 40,
+        opacity: 0,
+        scale: 0.96,
+        duration: 0.75,
+        stagger: 0.12,
+        ease: "power2.out"
+      });
+    }
+
     gsap.utils.toArray("section").forEach(sec => {
       const heading = sec.querySelector("h2");
       if (heading) {
@@ -789,6 +830,9 @@ function initRevealHoverEffects() {
   const cards = document.querySelectorAll("[data-reveal-card]");
 
   cards.forEach(card => {
+    if (card.dataset.revealInit === "true") return;
+    card.dataset.revealInit = "true";
+
     const spotlight = card.querySelector(".reveal-spotlight");
     const imgContainer = card.querySelector(".reveal-image-container");
 
@@ -908,6 +952,9 @@ function handleContactFormSubmit(event) {
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize GSAP Entrance Animations
   initGsapAnimations();
+
+  // Initialize Reveal Hover Effect on static cards (services, etc.)
+  initRevealHoverEffects();
 
   // Fetch properties from live Google Sheet CSV
   fetchProperties();
