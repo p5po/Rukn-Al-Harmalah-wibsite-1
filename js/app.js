@@ -556,15 +556,27 @@ function renderProperties() {
     const specItems = [];
     const areaVal = (plot.area || "").trim();
     if (areaVal !== "" && areaVal !== "-") {
-      specItems.push({ label: "المساحة", value: areaVal });
+      specItems.push({
+        label: "المساحة",
+        value: areaVal,
+        icon: `<svg class="w-3.5 h-3.5 text-[#C5A059] inline-block mb-0.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>`
+      });
     }
     const streetsVal = (plot.streets || "").trim();
     if (streetsVal !== "" && streetsVal !== "-") {
-      specItems.push({ label: "الشارع", value: streetsVal });
+      specItems.push({
+        label: "الشارع",
+        value: streetsVal,
+        icon: `<svg class="w-3.5 h-3.5 text-[#C5A059] inline-block mb-0.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>`
+      });
     }
     const dimensionsVal = (plot.dimensions || "").trim();
     if (dimensionsVal !== "" && dimensionsVal !== "-") {
-      specItems.push({ label: "الأبعاد", value: dimensionsVal });
+      specItems.push({
+        label: "الأبعاد",
+        value: dimensionsVal,
+        icon: `<svg class="w-3.5 h-3.5 text-[#C5A059] inline-block mb-0.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v10m8-10v10m-10-5h12"></path></svg>`
+      });
     }
 
     let specsHtml = "";
@@ -574,7 +586,10 @@ function renderProperties() {
         <div class="grid ${colClass} gap-2 py-3 px-3 rounded-xl spec-badge mb-5">
           ${specItems.map((spec, idx) => `
             <div class="text-center ${idx > 0 ? 'border-r border-white/10 pr-2' : ''}">
-              <span class="block text-[11px] text-gray-400 mb-0.5">${spec.label}</span>
+              <span class="flex items-center justify-center text-[11px] text-gray-400 mb-0.5">
+                ${spec.icon}
+                <span>${spec.label}</span>
+              </span>
               <span class="text-xs font-semibold text-gray-100 truncate block" title="${escapeHtml(spec.value)}">${escapeHtml(spec.value)}</span>
             </div>
           `).join("")}
