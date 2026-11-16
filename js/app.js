@@ -9,14 +9,6 @@
 const WHATSAPP_NUMBER = "966504302102";
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQd4-PmHM5yhvJf3LAt5GzVLezEYB-WDHKft_VB_CCzVxd4ASap_WPEsk6zNcC04go7VaelDFcqAwYp/pub?output=csv";
 
-/**
- * Generate a unique real estate inquiry ticket number
- */
-function generateTicketId(prefix = "HRA") {
-  const randomDigits = Math.floor(10000 + Math.random() * 90000);
-  return `${prefix}-${randomDigits}`;
-}
-
 // Clean Luxury Architectural Fallback Image (used ONLY when image_url cell is empty or invalid)
 const DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80";
 
@@ -116,20 +108,12 @@ function getStatusBadge(status) {
 }
 
 /**
- * Build WhatsApp link for plot inquiry using exact cell values and a generated inquiry ticket
+ * Build WhatsApp link for plot inquiry using exact title and ID
  */
 function buildPropertyWhatsAppLink(property) {
-  const ticketId = generateTicketId("INQ");
-  let message = `🎫 *تذكرة استفسار عقاري جديدة*\n`;
-  message += `━━━━━━━━━━━━━━━━━━━━\n`;
-  message += `🏷️ *رقم التذكرة:* #${ticketId}\n`;
-  if (property.id) message += `📌 *كود العقار:* ${property.id}\n`;
-  if (property.title) message += `🏷️ *اسم العرض:* ${property.title}\n`;
-  if (property.district && property.district.trim()) message += `📍 *الحي:* ${property.district.trim()}\n`;
-  if (property.price && property.price.trim()) message += `💰 *السعر:* ${property.price.trim()}\n`;
-  message += `━━━━━━━━━━━━━━━━━━━━\n`;
-  message += `السلام عليكم ورحمة الله، أود الاستفسار عن تفاصيل هذا العقار وحجز موعد للمعاينة.\n`;
-  message += `شركة ركن الحراملة العقارية | 0504302102`;
+  const title = property.title || "عقار بدون عنوان";
+  const id = property.id ? ` (كود: ${property.id})` : "";
+  const message = `السلام عليكم ورحمة الله، أود الاستفسار عن تفاصيل: ${title}${id}.`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
@@ -901,7 +885,7 @@ function resetFilters() {
 }
 
 /**
- * Handle Contact Form Submission to WhatsApp with Official Ticket Generation & Modal Confirmation
+ * Handle Contact Form Submission - Direct WhatsApp Redirection
  */
 function handleContactFormSubmit(event) {
   event.preventDefault();
@@ -910,90 +894,14 @@ function handleContactFormSubmit(event) {
   const requestType = document.getElementById("contact-type").value;
   const details = document.getElementById("contact-details").value.trim();
 
-  // Generate official unique ticket ID
-  const ticketId = generateTicketId("HRA");
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("ar-SA");
-
-  let message = `🎫 *تذكرة طلب عقاري معتمدة*\n`;
-  message += `━━━━━━━━━━━━━━━━━━━━\n`;
-  message += `🏷️ *رقم التذكرة:* #${ticketId}\n`;
-  message += `📅 *التاريخ:* ${dateStr}\n`;
-  if (name) message += `👤 *الاسم:* ${name}\n`;
-  if (phone) message += `📱 *الجوال:* ${phone}\n`;
-  if (requestType) message += `📋 *نوع الطلب:* ${requestType}\n`;
-  if (details) message += `📝 *التفاصيل:* ${details}\n`;
-  message += `━━━━━━━━━━━━━━━━━━━━\n`;
-  message += `شركة ركن الحراملة العقارية | خدمة العملاء\n`;
-  message += `هاتف: 0504302102`;
+  let message = `السلام عليكم ورحمة الله،\nلدي طلب تواصل عبر الموقع الإلكتروني لشركة ركن الحراملة العقارية:\n`;
+  if (name) message += `- الاسم: ${name}\n`;
+  if (phone) message += `- الجوال: ${phone}\n`;
+  if (requestType) message += `- نوع الطلب: ${requestType}\n`;
+  if (details) message += `- التفاصيل: ${details}\n`;
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-
-  // Display Ticket Modal on Screen
-  const modal = document.getElementById("ticket-modal");
-  const ticketIdEl = document.getElementById("modal-ticket-id");
-  const ticketSummaryEl = document.getElementById("modal-ticket-summary");
-  const ticketWhatsappBtn = document.getElementById("modal-ticket-whatsapp-link");
-  const liveTicketBadge = document.getElementById("live-ticket-badge");
-
-  if (ticketIdEl) ticketIdEl.textContent = `#${ticketId}`;
-  if (liveTicketBadge) liveTicketBadge.textContent = `🎫 #${ticketId}`;
-
-  if (ticketSummaryEl) {
-    ticketSummaryEl.innerHTML = `
-      <div><strong>العميل:</strong> ${escapeHtml(name || "غير محدد")}</div>
-      <div><strong>الجوال:</strong> ${escapeHtml(phone || "-")}</div>
-      <div><strong>نوع الطلب:</strong> ${escapeHtml(requestType || "استفسار عام")}</div>
-    `;
-  }
-
-  if (ticketWhatsappBtn) {
-    ticketWhatsappBtn.href = whatsappUrl;
-  }
-
-  if (modal) {
-    modal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  }
-
-  // Open WhatsApp in new tab directly
   window.open(whatsappUrl, "_blank");
-
-  showToast(`تم إصدار تذكرة طلبك بنجاح: #${ticketId}`);
-}
-
-/**
- * Close Ticket Confirmation Modal
- */
-function closeTicketModal() {
-  const modal = document.getElementById("ticket-modal");
-  if (!modal) return;
-  modal.classList.add("hidden");
-  document.body.style.overflow = "auto";
-}
-
-/**
- * Toast Notification Utility
- */
-function showToast(message) {
-  const toast = document.createElement("div");
-  toast.className = "fixed bottom-8 right-8 z-50 px-5 py-3 rounded-xl bg-[#1A1A1A] border border-[#C5A059] text-white text-sm shadow-2xl flex items-center gap-3 transition-all transform translate-y-4 opacity-0";
-  toast.innerHTML = `
-    <svg class="w-5 h-5 text-[#DFBE7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-    </svg>
-    <span>${message}</span>
-  `;
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.remove("translate-y-4", "opacity-0");
-  }, 50);
-
-  setTimeout(() => {
-    toast.classList.add("translate-y-4", "opacity-0");
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
 }
 
 // Initial Events and Listeners
@@ -1027,17 +935,4 @@ document.addEventListener("DOMContentLoaded", () => {
   if (contactForm) {
     contactForm.addEventListener("submit", handleContactFormSubmit);
   }
-
-  // Ticket modal backdrop listener
-  const ticketBackdrop = document.getElementById("ticket-backdrop");
-  if (ticketBackdrop) {
-    ticketBackdrop.addEventListener("click", closeTicketModal);
-  }
-
-  // Escape key closes modal
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeTicketModal();
-    }
-  });
 });
