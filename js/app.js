@@ -1075,38 +1075,6 @@ function handleContactFormSubmit(event) {
   window.open(whatsappUrl, "_blank");
 }
 
-/**
- * Toggle interactive mode on the Hero background map
- */
-function toggleHeroMapInteraction() {
-  const wrapper = document.querySelector(".hero-map-wrapper");
-  const iframe = document.getElementById("hero-map-iframe");
-  const btnText = document.getElementById("toggle-hero-map-text");
-  const btn = document.getElementById("toggle-hero-map-btn");
-  if (!wrapper || !btnText) return;
-
-  const isInteractive = wrapper.classList.toggle("interactive");
-  if (isInteractive) {
-    btnText.textContent = "إغلاق التفاعل مع الخريطة";
-    if (btn) {
-      btn.classList.add("border-[#DFBE7B]", "bg-[#C5A059]/25", "text-white");
-    }
-    if (iframe) {
-      iframe.classList.remove("pointer-events-none");
-      iframe.classList.add("pointer-events-auto");
-    }
-  } else {
-    btnText.textContent = "تفاعل مع الخريطة في الخلفية";
-    if (btn) {
-      btn.classList.remove("border-[#DFBE7B]", "bg-[#C5A059]/25", "text-white");
-    }
-    if (iframe) {
-      iframe.classList.remove("pointer-events-auto");
-      iframe.classList.add("pointer-events-none");
-    }
-  }
-}
-
 // Initial Events and Listeners
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize GSAP Entrance Animations
