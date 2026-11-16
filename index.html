@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شركة ركن الحراملة العقارية | الأراضي والمخططات الاستثمارية</title>
+  <meta name="description" content="شركة ركن الحراملة العقارية - روّاد الاستثمار وتطوير المخططات والأراضي السكنية والتجارية الفاخرة في المملكة العربية السعودية.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/S-gold-black-logo-removebg-preview.png">
+
+  <!-- Google Font: IBM Plex Sans Arabic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              300: '#ebd5a0',
+              400: '#DFBE7B',
+              500: '#C5A059',
+              600: '#A8843C',
+              700: '#8A6A2C',
+            },
+            dark: {
+              950: '#0D0D0D',
+              900: '#121212',
+              850: '#171717',
+              800: '#1A1A1A',
+              700: '#242424',
+              600: '#2D2D2D',
+            }
+          },
+          fontFamily: {
+            sans: ['"IBM Plex Sans Arabic"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- PapaParse for live Google Sheets CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#121212] text-gray-100 font-sans antialiased selection:bg-[#C5A059]/30 selection:text-white">
+
+  <!-- ================= TOP NOTIFICATION / TRUST STRIP ================= -->
+  <div class="bg-[#171717] border-b border-white/5 py-1.5 px-4 text-xs text-gray-400">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center gap-4">
+        <span class="inline-flex items-center gap-1.5 text-gray-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          وساطة وتسويق عقاري معتمد
+        </span>
+        <span class="hidden sm:inline text-white/20">|</span>
+        <span class="hidden sm:inline">رخصة فال: <strong class="text-gray-200 font-mono">1200000000</strong></span>
+        <span class="hidden md:inline text-white/20">|</span>
+        <span class="hidden md:inline">س.ت: <strong class="text-gray-200 font-mono">1010000000</strong></span>
+      </div>
+      <div class="flex items-center gap-4 text-xs">
+        <span class="text-gray-400">الرياض، المملكة العربية السعودية</span>
+        <span class="text-white/20">|</span>
+        <a href="tel:966500000000" class="hover:text-[#DFBE7B] transition font-mono" dir="ltr">+966 50 000 0000</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STICKY GLASSMORPHIC NAVBAR ================= -->
+  <header class="sticky top-0 z-40 w-full glass-nav transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo on Right (RTL Start) -->
+        <div class="flex items-center">
+          <a href="#" class="flex items-center gap-3 group focus:outline-none">
+            <img 
+              src="images/L-gold-black-logo-removebg-preview.png" 
+              alt="شركة ركن الحراملة العقارية" 
+              class="h-12 md:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          </a>
+        </div>
+
+        <!-- Center Navigation Links -->
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="#properties" class="text-sm font-medium text-gray-300 hover:text-[#DFBE7B] transition-colors relative py-1 after:absolute after:bottom-0 after:right-0 after:w-0 hover:after:w-full after:h-0.5 after:bg-[#C5A059] after:transition-all">
+            العروض العقارية
+          </a>
+          <a href="#about" class="text-sm font-medium text-gray-300 hover:text-[#DFBE7B] transition-colors relative py-1 after:absolute after:bottom-0 after:right-0 after:w-0 hover:after:w-full after:h-0.5 after:bg-[#C5A059] after:transition-all">
+            عن الشركة
+          </a>
+          <a href="#services" class="text-sm font-medium text-gray-300 hover:text-[#DFBE7B] transition-colors relative py-1 after:absolute after:bottom-0 after:right-0 after:w-0 hover:after:w-full after:h-0.5 after:bg-[#C5A059] after:transition-all">
+            خدماتنا
+          </a>
+          <a href="#contact" class="text-sm font-medium text-gray-300 hover:text-[#DFBE7B] transition-colors relative py-1 after:absolute after:bottom-0 after:right-0 after:w-0 hover:after:w-full after:h-0.5 after:bg-[#C5A059] after:transition-all">
+            تواصل معنا
+          </a>
+        </nav>
+
+        <!-- Left Actions (CTA Button + Mobile Toggle) -->
+        <div class="flex items-center gap-3">
+          <a 
+            href="https://wa.me/966500000000?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%AE%D8%AF%D9%85%D8%A7%D8%AA%20%D8%B1%D9%83%D9%86%20%D8%A7%D9%84%D8%AD%D8%B1%D8%A7%D9%85%D9%84%D8%A9%20%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%D9%8A%D8%A9" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gold-gradient-bg text-black font-semibold text-sm shadow-md hover:shadow-lg hover:shadow-[#C5A059]/20 transition-all duration-300"
+          >
+            <svg class="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            <span>تواصل واتساب</span>
+          </a>
+
+          <!-- Mobile Hamburger Button -->
+          <button 
+            id="mobile-menu-btn" 
+            type="button" 
+            class="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none"
+            aria-label="القائمة الرئيسية"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-b border-white/10 bg-[#1A1A1A]/95 px-4 pt-2 pb-6 space-y-3">
+      <a href="#properties" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-200 hover:bg-[#C5A059]/10 hover:text-[#DFBE7B]">العروض العقارية</a>
+      <a href="#about" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-200 hover:bg-[#C5A059]/10 hover:text-[#DFBE7B]">عن الشركة</a>
+      <a href="#services" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-200 hover:bg-[#C5A059]/10 hover:text-[#DFBE7B]">خدماتنا</a>
+      <a href="#contact" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-200 hover:bg-[#C5A059]/10 hover:text-[#DFBE7B]">تواصل معنا</a>
+      <div class="pt-2">
+        <a 
+          href="https://wa.me/966500000000" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl gold-gradient-bg text-black font-semibold text-sm"
+        >
+          <span>محادثة واتساب مباشرة</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= HERO SECTION ================= -->
+    <section class="relative pt-12 pb-24 md:pt-20 md:pb-32 overflow-hidden hero-pattern">
+      <!-- Background Luxury Glow Ambient -->
+      <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#C5A059]/10 blur-[140px] pointer-events-none rounded-full"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <!-- Pill Label -->
+        <div class="hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1A1A1A] border border-[#C5A059]/30 text-xs md:text-sm text-[#DFBE7B] mb-8 shadow-inner">
+          <span class="w-2 h-2 rounded-full bg-[#C5A059] glow-accent"></span>
+          <span>شركة ركن الحراملة العقارية • وجهتكم للاستثمار العقاري الموثوق</span>
+        </div>
+
+        <!-- High-Impact Headline -->
+        <h1 class="hero-title text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-6 leading-tight md:leading-tight">
+          نبني المستقبل على <span class="gold-gradient-text">أرضٍ صلبة</span>
+        </h1>
+
+        <!-- Subheadline / Value Proposition -->
+        <p class="hero-desc max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed mb-10 font-light">
+          نختص في طرح وتطوير نخبة المخططات والأراضي السكنية والتجارية الاستراتيجية في الرياض والمملكة، إلى جانب خيارات منتقاة من الوحدات السكنية الجاهزة، وفق أعلى معايير الشفافية والتراخيص الرسمية.
+        </p>
+
+        <!-- Hero CTAs -->
+        <div class="hero-ctas flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+          <a 
+            href="#properties" 
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl gold-gradient-bg text-black font-bold text-base shadow-xl shadow-[#C5A059]/20 hover:scale-[1.02] transition-all"
+          >
+            <span>استعرض الأراضي المتاحة</span>
+            <svg class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </a>
+
+          <a 
+            href="#contact" 
+            onclick="document.getElementById('contact-type').value='تسويق أرض';"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#1A1A1A] hover:bg-[#242424] text-white border border-[#C5A059]/40 hover:border-[#C5A059] font-medium text-base transition-all"
+          >
+            <span>اعرض أرضك لدينا</span>
+          </a>
+        </div>
+
+        <!-- Hero Quick Stats Counters -->
+        <div class="hero-stats mt-16 pt-12 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+          <div class="text-center p-3">
+            <span class="block text-2xl sm:text-3xl font-bold gold-gradient-text mb-1">100%</span>
+            <span class="text-xs sm:text-sm text-gray-400">عقود معتمدة عبر رخصة فال</span>
+          </div>
+          <div class="text-center p-3">
+            <span class="block text-2xl sm:text-3xl font-bold gold-gradient-text mb-1">مخططات</span>
+            <span class="text-xs sm:text-sm text-gray-400">سكنية وتجارية استراتيجية</span>
+          </div>
+          <div class="text-center p-3">
+            <span class="block text-2xl sm:text-3xl font-bold gold-gradient-text mb-1">مواقع</span>
+            <span class="text-xs sm:text-sm text-gray-400">في أرقى أحياء الرياض والمملكة</span>
+          </div>
+          <div class="text-center p-3">
+            <span class="block text-2xl sm:text-3xl font-bold gold-gradient-text mb-1">دعم مباشر</span>
+            <span class="text-xs sm:text-sm text-gray-400">مستشارون عقاريون بخبرة وافية</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INTERACTIVE PROPERTIES GRID ================= -->
+    <section id="properties" class="py-20 bg-[#121212] relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Section Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 pb-6 border-b border-white/10 gap-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs text-[#DFBE7B] font-semibold mb-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059]"></span>
+              <span>قائمة العروض الحصرية الحية</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-bold text-white">العروض العقارية المتاحة</h2>
+            <p class="text-sm text-gray-400 mt-1">تحديث حي ومباشر للأراضي والمخططات الاستثمارية والوحدات الجاهزة</p>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <span id="properties-count" class="px-3 py-1 rounded-full text-xs font-semibold bg-[#242424] text-[#DFBE7B] border border-[#C5A059]/30">
+              جارٍ التحميل...
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter & Search Controls Bar -->
+        <div class="glass-panel p-4 md:p-5 rounded-2xl mb-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          
+          <!-- Dynamic Category Filter Buttons (Generated from Sheet) -->
+          <div class="flex flex-wrap items-center gap-2" id="filter-buttons-container"></div>
+
+          <!-- Right Filters: Search Input & Hide Sold Toggle -->
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            
+            <!-- Real-time Search Box -->
+            <div class="relative w-full sm:w-64">
+              <input 
+                type="text" 
+                id="search-input" 
+                placeholder="ابحث بالحي، الكود، أو العنوان..." 
+                class="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-3 py-2 pr-9 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#C5A059]"
+              />
+              <svg class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+
+            <!-- Toggle Switch: Hide Sold (إخفاء المباع) -->
+            <label class="flex items-center gap-3 cursor-pointer select-none">
+              <div class="relative inline-block w-11 h-6 align-middle select-none transition duration-200 ease-in">
+                <input 
+                  type="checkbox" 
+                  id="toggle-hide-sold" 
+                  onchange="toggleHideSold(this)"
+                  class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-400 appearance-none cursor-pointer top-0.5 right-0.5 transition-all duration-200"
+                />
+                <span class="toggle-label block overflow-hidden h-6 rounded-full bg-[#1A1A1A] border border-white/10 cursor-pointer"></span>
+              </div>
+              <span class="text-xs sm:text-sm text-gray-300 whitespace-nowrap">إخفاء المباع</span>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Cards Grid Container -->
+        <div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Skeleton Loading Placeholders -->
+          <div class="glass-card rounded-2xl overflow-hidden p-4 space-y-4">
+            <div class="h-56 rounded-xl skeleton-box"></div>
+            <div class="h-6 w-3/4 rounded skeleton-box"></div>
+            <div class="h-4 w-1/2 rounded skeleton-box"></div>
+            <div class="h-16 rounded-xl skeleton-box"></div>
+            <div class="h-10 rounded-xl skeleton-box"></div>
+          </div>
+          <div class="glass-card rounded-2xl overflow-hidden p-4 space-y-4">
+            <div class="h-56 rounded-xl skeleton-box"></div>
+            <div class="h-6 w-3/4 rounded skeleton-box"></div>
+            <div class="h-4 w-1/2 rounded skeleton-box"></div>
+            <div class="h-16 rounded-xl skeleton-box"></div>
+            <div class="h-10 rounded-xl skeleton-box"></div>
+          </div>
+          <div class="glass-card rounded-2xl overflow-hidden p-4 space-y-4">
+            <div class="h-56 rounded-xl skeleton-box"></div>
+            <div class="h-6 w-3/4 rounded skeleton-box"></div>
+            <div class="h-4 w-1/2 rounded skeleton-box"></div>
+            <div class="h-16 rounded-xl skeleton-box"></div>
+            <div class="h-10 rounded-xl skeleton-box"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= SERVICES & ADVANTAGES ================= -->
+    <section id="services" class="py-20 bg-[#171717] relative border-t border-b border-white/5">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span class="text-xs text-[#DFBE7B] font-semibold tracking-wider uppercase mb-2 block">لماذا ركن الحراملة؟</span>
+          <h2 class="text-3xl font-bold text-white mb-4">خدمات وحلول عقارية متكاملة</h2>
+          <p class="text-sm text-gray-400">نضع خبراتنا في خدمة المطورين والمستثمرين وملاك الأراضي لضمان صفقات استثنائية وعوائد مجزية.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <!-- Service 1 -->
+          <div class="p-8 rounded-2xl bg-[#242424] border border-white/5 hover:border-[#C5A059]/40 transition group">
+            <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">تسويق وتطوير المخططات والأراضي</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              دراسة المواقع الاستراتيجية، تحليل طبيعة التضاريس، وربط الملاك بكبار المستثمرين والمطورين العقاريين لضمان سرعة الإنجاز والبيع.
+            </p>
+          </div>
+
+          <!-- Service 2 -->
+          <div class="p-8 rounded-2xl bg-[#242424] border border-white/5 hover:border-[#C5A059]/40 transition group">
+            <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">وساطة نظامية مرخصة (فال)</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              إتمام المعاملات وعقود الوساطة الحصرية والبيوع وفق لوائح الهيئة العامة للعقار لضمان حقوق كافة الأطراف بسلامة وأمان تام.
+            </p>
+          </div>
+
+          <!-- Service 3 -->
+          <div class="p-8 rounded-2xl bg-[#242424] border border-white/5 hover:border-[#C5A059]/40 transition group">
+            <div class="w-14 h-14 rounded-2xl bg-[#1A1A1A] border border-[#C5A059]/30 flex items-center justify-center text-[#DFBE7B] mb-6 group-hover:scale-110 transition-transform">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3">وحدات جاهزة وفرص نوعية</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+              ننتقي لكم فللاً سكنية وشققاً فاخرة وعقارات تجارية منتقاة بعناية لخدمة الباحثين عن السكن الراقي أو الاستثمار المدر للدخل.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= ABOUT & LEAD CAPTURE SECTION ================= -->
+    <section id="about" class="py-24 bg-[#121212] relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          
+          <!-- Company Overview (6 cols) -->
+          <div class="lg:col-span-6 space-y-6">
+            <div class="inline-flex items-center gap-1.5 text-xs text-[#DFBE7B] font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059]"></span>
+              <span>عن شركة ركن الحراملة العقارية</span>
+            </div>
+
+            <h2 class="text-3xl sm:text-4xl font-bold text-white leading-snug">
+              ريادة راسخة في تجارة وتسويق <span class="gold-gradient-text">الأراضي والمخططات</span>
+            </h2>
+
+            <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+              انطلقت شركة ركن الحراملة العقارية بهدف ترسيخ نموذج عمل احترافي يربط ملاك الأراضي بالمستثمرين والمطورين العقاريين، مع التركيز على المخططات السكنية والتجارية الواعدة في الرياض ومختلف مدن المملكة.
+            </p>
+
+            <p class="text-gray-400 text-sm sm:text-base leading-relaxed">
+              نلتزم بأعلى معايير الحوكمة العقارية المعمول بها في الهيئة العامة للعقار، ونحرص على توفير دراسات شاملة للموقع، الأبعاد، الشوارع والخدمات المحيطة لتسهيل اتخاذ القرارات الاستثمارية السليمة.
+            </p>
+
+            <!-- Official Licenses & Trust Grid -->
+            <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="p-4 rounded-xl bg-[#1A1A1A] border border-white/5 flex items-start gap-3">
+                <div class="p-2 rounded-lg bg-[#C5A059]/10 text-[#DFBE7B] mt-0.5">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <span class="block text-xs text-gray-400">رخصة فال العقارية</span>
+                  <span class="text-sm font-bold text-white font-mono">1200000000</span>
+                  <span class="block text-[11px] text-[#C5A059] mt-0.5">معتمدة من الهيئة العامة للعقار</span>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-[#1A1A1A] border border-white/5 flex items-start gap-3">
+                <div class="p-2 rounded-lg bg-[#C5A059]/10 text-[#DFBE7B] mt-0.5">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                </div>
+                <div>
+                  <span class="block text-xs text-gray-400">السجل التجاري</span>
+                  <span class="text-sm font-bold text-white font-mono">1010000000</span>
+                  <span class="block text-[11px] text-[#C5A059] mt-0.5">شركة مسجلة نظاماً</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Direct WhatsApp Contact Callout -->
+            <div class="p-5 rounded-2xl bg-gradient-to-l from-[#C5A059]/10 to-transparent border border-[#C5A059]/20 flex items-center justify-between">
+              <div>
+                <span class="text-xs text-gray-300 block">هل تبحث عن أرض بمواصفات معينة؟</span>
+                <span class="text-sm font-semibold text-white">تواصل مباشرة مع المستشار الاستثماري</span>
+              </div>
+              <a 
+                href="https://wa.me/966500000000" 
+                target="_blank" 
+                class="px-4 py-2 rounded-xl gold-gradient-bg text-black font-semibold text-xs whitespace-nowrap shadow"
+              >
+                تحدث معنا
+              </a>
+            </div>
+          </div>
+
+          <!-- Clean Contact & Lead Capture Form (6 cols) -->
+          <div id="contact" class="lg:col-span-6">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl relative">
+              <div class="mb-6">
+                <span class="text-xs text-[#DFBE7B] font-semibold block mb-1">طلب عقاري مباشر</span>
+                <h3 class="text-2xl font-bold text-white">اعرض أرضك أو اطلب عقارك</h3>
+                <p class="text-xs sm:text-sm text-gray-400 mt-1">سيتم تحويل بيانات طلبك فوراً وبشكل منسق إلى محادثة واتساب مع فريقنا المختص.</p>
+              </div>
+
+              <form id="contact-form" class="space-y-4">
+                
+                <!-- Full Name -->
+                <div>
+                  <label for="contact-name" class="block text-xs font-medium text-gray-300 mb-1.5">الاسم الكريم *</label>
+                  <input 
+                    type="text" 
+                    id="contact-name" 
+                    required 
+                    placeholder="مثال: عبدالمحسن التميمي" 
+                    class="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#C5A059] transition"
+                  />
+                </div>
+
+                <!-- Phone Number -->
+                <div>
+                  <label for="contact-phone" class="block text-xs font-medium text-gray-300 mb-1.5">رقم الجوال *</label>
+                  <input 
+                    type="tel" 
+                    id="contact-phone" 
+                    required 
+                    placeholder="05XXXXXXXX" 
+                    dir="ltr"
+                    class="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white text-right placeholder-gray-500 focus:outline-none focus:border-[#C5A059] transition font-mono"
+                  />
+                </div>
+
+                <!-- Request Type -->
+                <div>
+                  <label for="contact-type" class="block text-xs font-medium text-gray-300 mb-1.5">نوع الطلب *</label>
+                  <select 
+                    id="contact-type" 
+                    class="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#C5A059] transition cursor-pointer"
+                  >
+                    <option value="شراء أرض">شراء أرض (سكنية / تجارية)</option>
+                    <option value="تسويق أرض">تسويق أرض أو مخطط</option>
+                    <option value="شراء وحدة جاهزة">شراء وحدة جاهزة (فيلا / شقة)</option>
+                    <option value="استفسار عام">استفسار عام واستشارة عقارية</option>
+                  </select>
+                </div>
+
+                <!-- Details / Specifications -->
+                <div>
+                  <label for="contact-details" class="block text-xs font-medium text-gray-300 mb-1.5">تفاصيل الطلب أو مواصفات الأرض</label>
+                  <textarea 
+                    id="contact-details" 
+                    rows="3" 
+                    placeholder="اكتب الحي المرغوب، المساحة التقريبية، الميزانية، أو بيانات أرضك..." 
+                    class="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#C5A059] transition resize-none"
+                  ></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button 
+                  type="submit" 
+                  class="w-full py-3.5 px-6 rounded-xl gold-gradient-bg text-black font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-[#C5A059]/20 hover:scale-[1.01] transition-transform"
+                >
+                  <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  <span>إرسال الطلب عبر واتساب</span>
+                </button>
+
+              </form>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= LUXURY FOOTER ================= -->
+  <footer class="bg-[#0D0D0D] border-t border-white/10 pt-16 pb-12 text-gray-400 text-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        
+        <!-- Brand / Identity Column -->
+        <div class="md:col-span-2 space-y-4">
+          <div class="flex items-center gap-3">
+            <img 
+              src="images/S-gold-black-logo-removebg-preview.png" 
+              alt="شركة ركن الحراملة العقارية" 
+              class="h-14 w-auto object-contain"
+            />
+            <div>
+              <span class="block text-lg font-bold text-white">شركة ركن الحراملة العقارية</span>
+              <span class="text-xs text-[#DFBE7B]">Rukn Al-Haramala Real Estate</span>
+            </div>
+          </div>
+          <p class="text-xs sm:text-sm text-gray-400 max-w-sm leading-relaxed">
+            خبراء الأراضي والمخططات الاستثمارية في المملكة العربية السعودية. نوفر لعملائنا صفقات عقارية آمنة ومدروسة تعزز نمو ثرواتهم المستقبلية.
+          </p>
+          <div class="flex items-center gap-4 text-xs text-gray-400 pt-2 font-mono">
+            <span>رخصة فال: 1200000000</span>
+            <span>•</span>
+            <span>س.ت: 1010000000</span>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="space-y-3">
+          <h4 class="text-sm font-semibold text-white">روابط سريعة</h4>
+          <ul class="space-y-2 text-xs">
+            <li><a href="#properties" class="hover:text-[#DFBE7B] transition">العروض العقارية</a></li>
+            <li><a href="#about" class="hover:text-[#DFBE7B] transition">عن ركن الحراملة</a></li>
+            <li><a href="#services" class="hover:text-[#DFBE7B] transition">خدمات المخططات</a></li>
+            <li><a href="#contact" class="hover:text-[#DFBE7B] transition">اعرض عقارك</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="space-y-3">
+          <h4 class="text-sm font-semibold text-white">معلومات التواصل</h4>
+          <ul class="space-y-2 text-xs">
+            <li class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>الرياض، المملكة العربية السعودية</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+              </svg>
+              <a href="tel:966500000000" class="hover:text-[#DFBE7B] transition font-mono" dir="ltr">+966 50 000 0000</a>
+            </li>
+            <li class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              <a href="mailto:info@haramala.sa" class="hover:text-[#DFBE7B] transition font-mono">info@haramala.sa</a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+        <div>
+          جميع الحقوق محفوظة لشركة ركن الحراملة العقارية © 2026
+        </div>
+        <div class="flex items-center gap-4">
+          <span>تصميم وتنفيذ متوافق مع معايير الوساطة العقارية السعودية</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ================= FLOATING WHATSAPP BUTTON ================= -->
+  <a 
+    href="https://wa.me/966500000000?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A7%D9%84%D8%B9%D8%B1%D9%88%D8%B6%20%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%D9%8A%D8%A9" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    class="fixed bottom-6 left-6 z-40 p-4 rounded-full bg-[#25D366] text-white shadow-2xl hover:scale-110 transition-transform duration-300 flex items-center justify-center group"
+    aria-label="تواصل عبر واتساب"
+  >
+    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    <span class="absolute right-full ml-3 px-3 py-1 rounded-lg bg-black/90 text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+      تواصل سريع عبر واتساب
+    </span>
+  </a>
+
+
+  <!-- GSAP & ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Main Application Script -->
+  <script src="js/app.js"></script>
+</body>
+</html>

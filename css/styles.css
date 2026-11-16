@@ -1,0 +1,233 @@
+/* 
+   شركة ركن الحراملة العقارية - Rukn Al-Haramala Real Estate
+   Luxury RTL Real Estate Stylesheet
+   Enhanced with MengTo Skills: GSAP Reveals, Reveal Hover Effect & Liquid Metal Gold Border
+*/
+
+@property --liquid-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  --color-gold-300: #EBD5A0;
+  --color-gold-400: #DFBE7B;
+  --color-gold-500: #C5A059;
+  --color-gold-600: #A8843C;
+  --color-gold-700: #8A6A2C;
+  --color-dark-bg: #121212;
+  --color-dark-surface: #1A1A1A;
+  --color-dark-card: #202020;
+  --color-dark-border: #333333;
+}
+
+body {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  background-color: var(--color-dark-bg);
+  color: #F3F4F6;
+  direction: rtl;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+::-webkit-scrollbar-thumb {
+  background: #2D2D2D;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C5A059;
+}
+
+/* Metallic Gold Gradients */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFF6E5 0%, #DFBE7B 35%, #C5A059 70%, #9B783E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #DFBE7B 0%, #C5A059 50%, #A8843C 100%);
+}
+
+.gold-gradient-bg:hover {
+  background: linear-gradient(135deg, #ebd5a0 0%, #d4ae65 50%, #b89347 100%);
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(26, 26, 26, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(197, 160, 89, 0.15);
+}
+
+.glass-nav {
+  background: rgba(18, 18, 18, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(197, 160, 89, 0.18);
+}
+
+/* ========================================================
+   MENGTO SKILL: LIQUID METAL BORDER GOLD ACCENTS
+   ======================================================== */
+.liquid-metal-card {
+  position: relative;
+  background: #202020;
+  border-radius: 1.25rem;
+  isolation: isolate;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.liquid-metal-card::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: calc(1.25rem + 1.5px);
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--liquid-angle, 0deg),
+    transparent 15%,
+    rgba(197, 160, 89, 0.25) 35%,
+    #DFBE7B 48%,
+    #FFF5DF 52%,
+    #C5A059 56%,
+    rgba(197, 160, 89, 0.25) 68%,
+    transparent 88%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.35;
+  transition: opacity 0.5s ease;
+  z-index: 2;
+}
+
+.liquid-metal-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 28px -4px rgba(197, 160, 89, 0.16);
+  border-color: transparent;
+}
+
+.liquid-metal-card:hover::before {
+  opacity: 1;
+  animation: liquidMetalSpin 4s linear infinite;
+}
+
+@keyframes liquidMetalSpin {
+  0% {
+    --liquid-angle: 0deg;
+  }
+  100% {
+    --liquid-angle: 360deg;
+  }
+}
+
+/* ========================================================
+   MENGTO SKILL: REVEAL HOVER EFFECT (SPOTLIGHT CURSOR TRACKING)
+   ======================================================== */
+.reveal-spotlight {
+  --reveal-x: 50%;
+  --reveal-y: 50%;
+  --reveal-r: 0px;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    circle var(--reveal-r) at var(--reveal-x) var(--reveal-y),
+    rgba(223, 190, 123, 0.14) 0%,
+    rgba(197, 160, 89, 0.05) 50%,
+    transparent 80%
+  );
+  transition: opacity 0.3s ease;
+}
+
+/* Image reveal overlay */
+.reveal-image-container {
+  --reveal-img-x: 50%;
+  --reveal-img-y: 50%;
+  --reveal-img-r: 0px;
+  position: relative;
+  overflow: hidden;
+}
+
+.reveal-image-spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle var(--reveal-img-r) at var(--reveal-img-x) var(--reveal-img-y),
+    rgba(255, 236, 199, 0.25) 0%,
+    rgba(223, 190, 123, 0.1) 45%,
+    transparent 75%
+  );
+  mix-blend-mode: overlay;
+  transition: opacity 0.25s ease;
+}
+
+/* Luxury Hero Background Overlay */
+.hero-pattern {
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(197, 160, 89, 0.14) 0%, transparent 65%),
+    linear-gradient(to bottom, rgba(18, 18, 18, 0.7) 0%, #121212 100%);
+}
+
+/* Subtle Shimmer for Skeleton Loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-box {
+  background: linear-gradient(90deg, #202020 25%, #2B2B2B 50%, #202020 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+}
+
+/* Glowing Accent Dots */
+.glow-accent {
+  box-shadow: 0 0 15px rgba(197, 160, 89, 0.4);
+}
+
+/* Custom Toggle Switch for 'إخفاء المباع' */
+.toggle-checkbox:checked {
+  right: auto;
+  left: 0;
+  background-color: #C5A059;
+}
+.toggle-checkbox:checked + .toggle-label {
+  background-color: rgba(197, 160, 89, 0.3);
+  border-color: #C5A059;
+}
+
+/* Card Specs Badge */
+.spec-badge {
+  background: rgba(28, 28, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .liquid-metal-card:hover::before {
+    animation: none;
+  }
+  .skeleton-box {
+    animation: none;
+  }
+}
