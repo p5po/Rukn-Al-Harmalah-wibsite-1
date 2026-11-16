@@ -108,12 +108,22 @@ function getStatusBadge(status) {
 }
 
 /**
- * Build WhatsApp link for plot inquiry using exact title and ID
+ * Build WhatsApp link for plot inquiry using exact title, plan_no, and plot_no
  */
 function buildPropertyWhatsAppLink(property) {
-  const title = property.title || "عقار بدون عنوان";
-  const id = property.id ? ` (كود: ${property.id})` : "";
-  const message = `السلام عليكم ورحمة الله، أود الاستفسار عن تفاصيل: ${title}${id}.`;
+  const title = property.title || "عقار في حي عريض";
+  const planParts = [];
+  if (property.plan_no) planParts.push(`مخطط: ${property.plan_no}`);
+  if (property.plot_no) planParts.push(`قطعة: ${property.plot_no}`);
+
+  let planInfo = "";
+  if (planParts.length > 0) {
+    planInfo = ` [${planParts.join(" • ")}]`;
+  } else if (property.id) {
+    planInfo = ` (كود: ${property.id})`;
+  }
+
+  const message = `السلام عليكم ورحمة الله، أود الاستفسار عن تفاصيل: ${title}${planInfo}.`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
@@ -169,10 +179,12 @@ function parseCSVString(text) {
 
 /**
  * Flexible Column Mapping: Normalizes both English and Arabic headers
+ * Schema: plan_no, plot_no, title, type, district, area, streets, dimensions, price, status, map_url, image_url
  */
 function normalizePropertyRow(rawRow) {
   const norm = {
-    id: '',
+    plan_no: '',
+    plot_no: '',
     title: '',
     type: '',
     district: '',
@@ -182,7 +194,8 @@ function normalizePropertyRow(rawRow) {
     price: '',
     status: '',
     map_url: '',
-    image_url: ''
+    image_url: '',
+    id: ''
   };
 
   for (const [key, rawVal] of Object.entries(rawRow)) {
@@ -190,9 +203,13 @@ function normalizePropertyRow(rawRow) {
     const k = key.trim().toLowerCase().replace(/[\r\n_-]/g, ' ');
     const val = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : '';
 
-    // ID
-    if (!norm.id && (k === 'id' || k.includes('كود') || k.includes('معرف') || k.includes('رقم العقار') || k.includes('رقم القطعة') || k.includes('رمز'))) {
-      norm.id = val;
+    // Plan Number (رقم المخطط)
+    if (!norm.plan_no && (k === 'plan_no' || k === 'plan no' || k === 'plan' || k === 'planno' || k.includes('رقم المخطط') || k.includes('المخطط') || k === 'مخطط')) {
+      norm.plan_no = val;
+    }
+    // Plot Number (رقم القطعة)
+    else if (!norm.plot_no && (k === 'plot_no' || k === 'plot no' || k === 'plot' || k === 'plotno' || k.includes('رقم القطعة') || k.includes('القطعة') || k === 'قطعة')) {
+      norm.plot_no = val;
     }
     // Title
     else if (!norm.title && (k === 'title' || k.includes('عنوان') || k.includes('اسم العقار') || k.includes('اسم العرض') || k.includes('وصف'))) {
@@ -226,7 +243,7 @@ function normalizePropertyRow(rawRow) {
     else if (!norm.status && (k === 'status' || k.includes('حال') || k.includes('وضع'))) {
       norm.status = val;
     }
-    // Map URL
+    // Map URL (Google Maps)
     else if (!norm.map_url && (k.includes('map') || k.includes('خريط') || k.includes('لوكيشن') || k.includes('موقع'))) {
       norm.map_url = val;
     }
@@ -234,10 +251,14 @@ function normalizePropertyRow(rawRow) {
     else if (!norm.image_url && (k.includes('image') || k.includes('img') || k.includes('photo') || k.includes('صور'))) {
       norm.image_url = val;
     }
+    // Legacy fallback ID
+    else if (!norm.id && (k === 'id' || k.includes('كود') || k.includes('معرف') || k.includes('رمز'))) {
+      norm.id = val;
+    }
   }
 
-  // Exact fallback if key names match the standard English schema directly
-  ['id', 'title', 'type', 'district', 'area', 'streets', 'dimensions', 'price', 'status', 'map_url', 'image_url'].forEach(col => {
+  // Exact fallback if key names match the standard schema directly
+  ['plan_no', 'plot_no', 'title', 'type', 'district', 'area', 'streets', 'dimensions', 'price', 'status', 'map_url', 'image_url', 'id'].forEach(col => {
     if (rawRow[col] !== undefined && rawRow[col] !== null && String(rawRow[col]).trim() !== '') {
       norm[col] = String(rawRow[col]).trim();
     }
@@ -317,9 +338,10 @@ async function fetchProperties() {
         allProperties = parsedResult.data
           .map(normalizePropertyRow)
           .filter(row => {
+            const hasPlanOrPlot = (row.plan_no && row.plan_no !== "") || (row.plot_no && row.plot_no !== "");
             const hasId = row.id && row.id !== "";
             const hasTitle = row.title && row.title !== "";
-            return hasId || hasTitle;
+            return hasPlanOrPlot || hasTitle || hasId;
           });
 
         console.log(`✅ العقارات الصالحة بعد المطابقة المرنة: ${allProperties.length}`);
@@ -417,9 +439,11 @@ function getFilteredProperties() {
       const q = searchQuery.toLowerCase().trim();
       const matchTitle = (item.title || "").toLowerCase().includes(q);
       const matchDistrict = (item.district || "").toLowerCase().includes(q);
+      const matchPlan = (item.plan_no || "").toLowerCase().includes(q);
+      const matchPlot = (item.plot_no || "").toLowerCase().includes(q);
       const matchId = (item.id || "").toLowerCase().includes(q);
       const matchType = (item.type || "").toLowerCase().includes(q);
-      if (!matchTitle && !matchDistrict && !matchId && !matchType) return false;
+      if (!matchTitle && !matchDistrict && !matchPlan && !matchPlot && !matchId && !matchType) return false;
     }
 
     return true;
@@ -508,14 +532,24 @@ function renderProperties() {
       `;
     }
 
-    // Exact ID Badge (hidden if empty)
-    const idText = (plot.id || "").trim();
-    let idBadgeHtml = "";
-    if (idText !== "") {
-      idBadgeHtml = `
+    // Exact Plan & Plot Badge (or legacy ID fallback)
+    let planBadgeText = "";
+    if (plot.plan_no && plot.plot_no) {
+      planBadgeText = `مخطط ${plot.plan_no} • قطعة ${plot.plot_no}`;
+    } else if (plot.plan_no) {
+      planBadgeText = `مخطط ${plot.plan_no}`;
+    } else if (plot.plot_no) {
+      planBadgeText = `قطعة ${plot.plot_no}`;
+    } else if (plot.id) {
+      planBadgeText = plot.id;
+    }
+
+    let planBadgeHtml = "";
+    if (planBadgeText !== "") {
+      planBadgeHtml = `
         <div class="absolute bottom-3 right-4 z-10">
-          <span class="text-xs font-mono px-2 py-0.5 rounded bg-black/70 text-gray-200 border border-white/10">
-            ${escapeHtml(idText)}
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-black/85 backdrop-blur-md text-[#DFBE7B] border border-[#C5A059]/40 shadow">
+            ${escapeHtml(planBadgeText)}
           </span>
         </div>
       `;
@@ -532,6 +566,19 @@ function renderProperties() {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
           </svg>
           <span>${escapeHtml(districtText)}</span>
+        </div>
+      `;
+    }
+
+    // Plan & Plot Subtitle in Card Body
+    let planSubtitleHtml = "";
+    if (planBadgeText !== "") {
+      planSubtitleHtml = `
+        <div class="flex items-center gap-1.5 text-xs font-bold text-[#DFBE7B] mb-2">
+          <svg class="w-3.5 h-3.5 text-[#C5A059] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+          </svg>
+          <span>${escapeHtml(planBadgeText)}</span>
         </div>
       `;
     }
@@ -595,40 +642,45 @@ function renderProperties() {
       `;
     }
 
-    // Action Buttons
-    let buttonsHtml = "";
-    if (hasMap) {
-      buttonsHtml = `
-        <div class="grid grid-cols-2 gap-2 relative z-10">
-          <a 
-            href="${escapeHtml(plot.map_url.trim())}" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:border-[#C5A059]/50 hover:bg-[#C5A059]/10 text-xs font-medium transition"
-            title="الموقع على الخريطة"
-          >
-            <svg class="w-3.5 h-3.5 text-[#DFBE7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-            </svg>
-            <span>الموقع على الخريطة</span>
-          </a>
+    // Action Buttons (Automatic Haramala Map + Google Maps + WhatsApp CTA)
+    const hasHaramalaMap = Boolean(plot.plan_no && String(plot.plan_no).trim() !== "");
+    const haramalaMapUrl = hasHaramalaMap 
+      ? `map/index.html?plan=${encodeURIComponent(plot.plan_no.trim())}${plot.plot_no ? `&plot=${encodeURIComponent(plot.plot_no.trim())}` : ''}`
+      : "";
 
-          <a 
-            href="${whatsappLink}" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            class="whatsapp-cta-glow flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl gold-gradient-bg text-black font-bold text-xs shadow-md hover:scale-[1.02] transition-transform"
-          >
-            <svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
-            <span>استفسر عبر واتساب</span>
-          </a>
-        </div>
-      `;
-    } else {
+    let buttonsHtml = "";
+    if (hasHaramalaMap && hasMap) {
       buttonsHtml = `
-        <div class="relative z-10">
+        <div class="space-y-2 relative z-10">
+          <div class="grid grid-cols-2 gap-2">
+            <a 
+              href="${haramalaMapUrl}" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-[#C5A059]/40 bg-[#C5A059]/10 text-[#DFBE7B] hover:text-white hover:border-[#C5A059] hover:bg-[#C5A059]/20 text-xs font-semibold transition shadow-sm"
+              title="عرض المخطط والقطعة في خريطة الحراملة"
+            >
+              <svg class="w-3.5 h-3.5 text-[#DFBE7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+              </svg>
+              <span>خريطة الحراملة</span>
+            </a>
+
+            <a 
+              href="${escapeHtml(plot.map_url.trim())}" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:border-[#C5A059]/50 hover:bg-white/5 text-xs font-medium transition"
+              title="الموقع على خرائط قوقل"
+            >
+              <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>خرائط قوقل</span>
+            </a>
+          </div>
+
           <a 
             href="${whatsappLink}" 
             target="_blank" 
@@ -642,6 +694,81 @@ function renderProperties() {
           </a>
         </div>
       `;
+    } else if (hasHaramalaMap) {
+      buttonsHtml = `
+        <div class="space-y-2 relative z-10">
+          <a 
+            href="${haramalaMapUrl}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-[#C5A059]/40 bg-[#C5A059]/10 text-[#DFBE7B] hover:text-white hover:border-[#C5A059] hover:bg-[#C5A059]/20 text-xs font-semibold transition shadow-sm"
+            title="عرض المخطط والقطعة في خريطة الحراملة"
+          >
+            <svg class="w-3.5 h-3.5 text-[#DFBE7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+            </svg>
+            <span>عرض في خريطة الحراملة</span>
+          </a>
+
+          <a 
+            href="${whatsappLink}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="whatsapp-cta-glow w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl gold-gradient-bg text-black font-bold text-xs shadow-md hover:scale-[1.02] transition-transform"
+          >
+            <svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          <span>استفسر عبر واتساب</span>
+        </a>
+      </div>
+    `;
+    } else if (hasMap) {
+      buttonsHtml = `
+        <div class="space-y-2 relative z-10">
+          <a 
+            href="${escapeHtml(plot.map_url.trim())}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:border-[#C5A059]/50 hover:bg-white/5 text-xs font-medium transition"
+            title="الموقع على خرائط قوقل"
+          >
+            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>الموقع على خرائط قوقل</span>
+          </a>
+
+          <a 
+            href="${whatsappLink}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="whatsapp-cta-glow w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl gold-gradient-bg text-black font-bold text-xs shadow-md hover:scale-[1.02] transition-transform"
+          >
+            <svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          <span>استفسر عبر واتساب</span>
+        </a>
+      </div>
+    `;
+    } else {
+      buttonsHtml = `
+        <div class="relative z-10">
+          <a 
+            href="${whatsappLink}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="whatsapp-cta-glow w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl gold-gradient-bg text-black font-bold text-xs shadow-md hover:scale-[1.02] transition-transform"
+          >
+            <svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          <span>استفسر عبر واتساب</span>
+        </a>
+      </div>
+    `;
     }
 
     return `
@@ -946,6 +1073,38 @@ function handleContactFormSubmit(event) {
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, "_blank");
+}
+
+/**
+ * Toggle interactive mode on the Hero background map
+ */
+function toggleHeroMapInteraction() {
+  const wrapper = document.querySelector(".hero-map-wrapper");
+  const iframe = document.getElementById("hero-map-iframe");
+  const btnText = document.getElementById("toggle-hero-map-text");
+  const btn = document.getElementById("toggle-hero-map-btn");
+  if (!wrapper || !btnText) return;
+
+  const isInteractive = wrapper.classList.toggle("interactive");
+  if (isInteractive) {
+    btnText.textContent = "إغلاق التفاعل مع الخريطة";
+    if (btn) {
+      btn.classList.add("border-[#DFBE7B]", "bg-[#C5A059]/25", "text-white");
+    }
+    if (iframe) {
+      iframe.classList.remove("pointer-events-none");
+      iframe.classList.add("pointer-events-auto");
+    }
+  } else {
+    btnText.textContent = "تفاعل مع الخريطة في الخلفية";
+    if (btn) {
+      btn.classList.remove("border-[#DFBE7B]", "bg-[#C5A059]/25", "text-white");
+    }
+    if (iframe) {
+      iframe.classList.remove("pointer-events-auto");
+      iframe.classList.add("pointer-events-none");
+    }
+  }
 }
 
 // Initial Events and Listeners

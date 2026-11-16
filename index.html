@@ -114,6 +114,12 @@
           <a href="#properties" class="text-sm font-medium text-gray-300 hover:text-[#DFBE7B] transition-colors relative py-1 after:absolute after:bottom-0 after:right-0 after:w-0 hover:after:w-full after:h-0.5 after:bg-[#C5A059] after:transition-all">
             العروض العقارية
           </a>
+          <a href="map/index.html" class="flex items-center gap-1.5 text-sm font-semibold text-[#DFBE7B] hover:text-white transition-colors relative py-1 after:absolute after:bottom-0 after:right-0 after:w-0 hover:after:w-full after:h-0.5 after:bg-[#C5A059] after:transition-all">
+            <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+            </svg>
+            <span>خريطة المخططات</span>
+          </a>
           <a href="#about" class="text-sm font-medium text-gray-300 hover:text-[#DFBE7B] transition-colors relative py-1 after:absolute after:bottom-0 after:right-0 after:w-0 hover:after:w-full after:h-0.5 after:bg-[#C5A059] after:transition-all">
             عن الشركة
           </a>
@@ -157,6 +163,10 @@
     <!-- Mobile Drawer Menu -->
     <div id="mobile-menu" class="hidden md:hidden border-b border-white/10 bg-[#1A1A1A]/95 px-4 pt-2 pb-6 space-y-3">
       <a href="#properties" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-200 hover:bg-[#C5A059]/10 hover:text-[#DFBE7B]">العروض العقارية</a>
+      <a href="map/index.html" class="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-semibold text-[#DFBE7B] hover:bg-[#C5A059]/10">
+        <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+        <span>خريطة مخططات عريض التفاعلية</span>
+      </a>
       <a href="#about" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-200 hover:bg-[#C5A059]/10 hover:text-[#DFBE7B]">عن الشركة</a>
       <a href="#services" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-200 hover:bg-[#C5A059]/10 hover:text-[#DFBE7B]">خدماتنا</a>
       <a href="#contact" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-200 hover:bg-[#C5A059]/10 hover:text-[#DFBE7B]">تواصل معنا</a>
@@ -176,6 +186,19 @@
   <main>
     <!-- ================= HERO SECTION ================= -->
     <section class="relative pt-12 pb-24 md:pt-20 md:pb-32 overflow-hidden hero-pattern">
+      <!-- Live Interactive Areed Land Masterplan Background Layer -->
+      <div class="hero-map-wrapper">
+        <iframe 
+          id="hero-map-iframe"
+          src="map/index.html?bg=1" 
+          title="خريطة مخططات عريض التفاعلية"
+          class="w-full h-full border-0 pointer-events-none transition-all duration-700 opacity-60 scale-105"
+          loading="lazy"
+        ></iframe>
+        <!-- Dark Charcoal Radial Gradient Overlay -->
+        <div class="hero-map-overlay"></div>
+      </div>
+
       <!-- Background Luxury Glow Ambient with Parallax -->
       <div class="hero-ambient-glow absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-[#C5A059]/12 blur-[140px] pointer-events-none rounded-full"></div>
 
@@ -216,6 +239,31 @@
             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#1A1A1A] hover:bg-[#242424] text-white border border-[#C5A059]/40 hover:border-[#C5A059] font-medium text-base transition-all"
           >
             <span>اعرض أرضك لدينا</span>
+          </a>
+        </div>
+
+        <!-- Interactive Map Toggle Button in Hero -->
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3 relative z-20">
+          <button 
+            id="toggle-hero-map-btn"
+            type="button"
+            onclick="toggleHeroMapInteraction()"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-[#1A1A1A]/90 hover:bg-[#252525] border border-[#C5A059]/40 text-[#DFBE7B] backdrop-blur-md transition-all shadow-lg hover:border-[#C5A059] cursor-pointer"
+          >
+            <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+            </svg>
+            <span id="toggle-hero-map-text">تفاعل مع الخريطة في الخلفية</span>
+          </button>
+          <a 
+            href="map/index.html" 
+            target="_blank"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C5A059]/40 backdrop-blur-md transition-all"
+          >
+            <span>فتح خريطة المخططات كاملة</span>
+            <svg class="w-3.5 h-3.5 rtl:rotate-180 text-[#DFBE7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
           </a>
         </div>
 
