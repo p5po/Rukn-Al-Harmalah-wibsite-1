@@ -28,7 +28,7 @@
   const RIYADH_BOUNDS = [[46.50, 24.40], [47.00, 24.93]];
   const ARID_LABEL = (BM.places.features.find(f => f.properties.n === 'عريض') || {}).geometry; // OSM place node
   const STATUS = {
-    available: { ar: 'متاحة', color: '#7fa37a' },
+    available: { ar: 'متاحة', color: '#DFBE7B' },
     reserved: { ar: 'محجوزة', color: '#d49a3a' },
     sold: { ar: 'مباعة', color: '#9b5f55' },
     unknown: { ar: 'غير محددة', color: null },
@@ -94,53 +94,144 @@
     if (f || row.length) { row.push(f); rows.push(row); }
     return rows.filter(r => r.some(x => x.trim() !== ''));
   }
-  function loadSales() {
-    return new Promise(resolve => {
-      /* v1.19: data/sales_status.js is already in memory (the start scripts regenerate it whenever the CSV changes),
-         so the 2.4 MB CSV is not read a second time — this alone took ~5 s at start-up. The CSV is read only if the .js is missing. */
-      if (typeof window.SALES_CSV === 'string') return resolve(null);
+  const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQd4-PmHM5yhvJf3LAt5GzVLezEYB-WDHKft_VB_CCzVxd4ASap_WPEsk6zNcC04go7VaelDFcqAwYp/pub?output=csv';
+
+  async function loadSales() {
+    let text = null;
+    try {
+      const res = await fetch(GOOGLE_SHEETS_CSV_URL + (GOOGLE_SHEETS_CSV_URL.includes('?') ? '&' : '?') + '_t=' + Date.now(), { cache: 'no-cache' });
+      if (res.ok) {
+        const fetched = await res.text();
+        if (fetched && fetched.includes(',')) {
+          text = fetched;
+          salesSource = 'Google Sheets Live';
+          console.log('[Haramala Map] Live sales loaded from Google Sheets');
+        }
+      }
+    } catch (e) {
+      console.warn('[Haramala Map] Failed to fetch live Google Sheets CSV, trying local fallback...', e);
+    }
+
+    if (!text && typeof window.SALES_CSV === 'string') {
+      text = window.SALES_CSV;
+      salesSource = 'data/sales_status.js';
+    } else if (!text) {
       try {
-        const x = new XMLHttpRequest();
-        x.open('GET', 'data/sales_status.csv?t=' + Date.now(), true);
-        x.onload = () => { if (x.status === 0 || x.status === 200) resolve(x.responseText); else resolve(null); };
-        x.onerror = () => resolve(null);
-        x.send();
-      } catch (e) { resolve(null); }
-    }).then(text => {
-      if (!text && typeof window.SALES_CSV === 'string') { text = window.SALES_CSV; salesSource = 'data/sales_status.js'; }
-      else if (text) salesSource = 'data/sales_status.csv';
-      if (!text) return false;
-      const rows = parseCSV(text); const h = rows.shift().map(s => s.trim().toLowerCase());
-      validateSales(rows, h);
-      return true;
-    });
+        const localRes = await fetch('data/sales_status.csv?t=' + Date.now());
+        if (localRes.ok) {
+          text = await localRes.text();
+          salesSource = 'data/sales_status.csv';
+        }
+      } catch (e) {}
+    }
+
+    if (!text) return false;
+    const rows = parseCSV(text);
+    if (!rows.length) return false;
+    const h = rows.shift().map(s => s.trim().toLowerCase());
+    validateSales(rows, h);
+    return true;
   }
 
-  /* Validation rules — a status is attached to a shape only when the row identifies exactly one shape:
-     v2 (parcel_uid column): uid must exist; parcel_no (if filled) must match that shape's printed number; a uid listed twice
-       with different values is rejected entirely; status must be a recognised value.
-     v1 (no parcel_uid column, legacy): accepted only when the number is printed on exactly one shape of that plan. */
   function validateSales(rows, h) {
-    const ci = k => h.indexOf(k); const hasUid = ci('parcel_uid') >= 0; salesReport.schema = hasUid ? 'v2 (parcel_uid)' : 'v1 (parcel_no — legacy)';
-    const seen = new Map(); const rej = (line, reason, raw) => salesReport.rejected.push({ line, reason, raw: raw.join(',').slice(0, 80) });
-    rows.forEach((r, i) => {
-      const line = i + 2; const get = k => ci(k) >= 0 ? (r[ci(k)] || '').trim() : '';
-      const st = normStatus(get('status')); if (st === null) return rej(line, 'قيمة حالة غير معروفة: ' + get('status'), r);
-      let f = null;
-      if (hasUid) {
-        const uid = get('parcel_uid'); f = byUid.get(uid);
-        if (!f) return rej(line, 'معرّف غير موجود في أي مخطط معروض: ' + uid, r);
-        const no = get('parcel_no'); if (no && normNo(no) !== normNo(f.properties.no)) return rej(line, 'رقم القطعة لا يطابق المعرّف (' + no + ' ≠ ' + f.properties.no + ')', r);
-      } else {
-        const plan = get('plan') || currentPlan; const hits = byNo.get(plan + '|' + normNo(get('parcel_no'))) || [];
-        if (hits.length !== 1) return rej(line, hits.length ? 'الرقم مكرر في المخطط — استخدم parcel_uid' : 'رقم غير موجود', r);
-        f = hits[0];
+    const ci = (...keys) => {
+      for (const k of keys) {
+        const idx = h.indexOf(k.toLowerCase());
+        if (idx >= 0) return idx;
       }
-      const uid = f.properties.uid; const rec = { status: st, price: get('price_sar'), notes: get('notes'), line };
-      if (seen.has(uid)) { const prev = seen.get(uid); if (prev && (prev.status !== rec.status || prev.price !== rec.price || prev.notes !== rec.notes)) { seen.set(uid, null); rej(line, 'المعرّف مذكور أكثر من مرة بقيم مختلفة: ' + uid, r); } return; }
+      return -1;
+    };
+
+    const hasUid = ci('parcel_uid') >= 0;
+    salesReport.schema = hasUid ? 'v2 (parcel_uid)' : 'v1 (flexible plan/plot)';
+    const seen = new Map();
+    const rej = (line, reason, raw) => salesReport.rejected.push({ line, reason, raw: raw.join(',').slice(0, 80) });
+
+    const colPlan = ci('plan_no', 'plan', 'مخطط', 'رقم المخطط');
+    const colPlot = ci('plot_no', 'parcel_no', 'plot', 'قطعة', 'رقم القطعة');
+    const colStatus = ci('status', 'الحالة', 'حالة');
+    const colPrice = ci('price', 'price_sar', 'السعر', 'سعر');
+    const colArea = ci('area', 'المساحة', 'مساحة');
+    const colStreets = ci('streets', 'street', 'الشارع', 'شوارع');
+    const colDimensions = ci('dimensions', 'الأبعاد', 'أبعاد');
+    const colTitle = ci('title', 'العنوان', 'اسم العرض');
+    const colNotes = ci('notes', 'ملاحظات');
+
+    rows.forEach((r, i) => {
+      const line = i + 2;
+      const getVal = idx => (idx >= 0 && r[idx] !== undefined) ? r[idx].trim() : '';
+
+      const rawStatus = getVal(colStatus) || 'متاح';
+      const st = normStatus(rawStatus) || 'available';
+
+      const rawPlan = getVal(colPlan);
+      const rawPlot = getVal(colPlot);
+      const rawPrice = getVal(colPrice);
+      const rawArea = getVal(colArea);
+      const rawStreets = getVal(colStreets);
+      const rawDim = getVal(colDimensions);
+      const rawTitle = getVal(colTitle);
+      const rawNotes = getVal(colNotes);
+
+      let f = null;
+      if (hasUid && getVal(ci('parcel_uid'))) {
+        const uid = getVal(ci('parcel_uid'));
+        f = byUid.get(uid);
+        if (!f) return rej(line, 'معرّف غير موجود في أي مخطط معروض: ' + uid, r);
+        const no = rawPlot;
+        if (no && normNo(no) !== normNo(f.properties.no)) return rej(line, 'رقم القطعة لا يطابق المعرّف (' + no + ' ≠ ' + f.properties.no + ')', r);
+      } else {
+        if (!rawPlot && !rawPlan) return; // skip empty row
+        const cleanPlot = normNo(rawPlot);
+        const cleanPlanMatch = rawPlan ? rawPlan.match(/\d+[\w-]*/i) : null;
+        const cleanPlan = cleanPlanMatch ? cleanPlanMatch[0] : (rawPlan ? rawPlan.trim() : '');
+
+        if (cleanPlan && cleanPlot) {
+          const key = cleanPlan + '|' + cleanPlot;
+          const hits = byNo.get(key) || (typeof byAlias !== 'undefined' && byAlias.get(key));
+          if (hits && hits.length) f = hits[0];
+        }
+
+        if (!f && cleanPlot) {
+          for (const [k, hits] of byNo) {
+            if (k.endsWith('|' + cleanPlot)) {
+              if (!cleanPlan || k.startsWith(cleanPlan)) {
+                f = hits[0];
+                break;
+              }
+            }
+          }
+        }
+
+        if (!f) return rej(line, 'لم يتم العثور على قطعة مطابقة: ' + (rawPlan ? 'مخطط ' + rawPlan + ' ' : '') + 'قطعة ' + rawPlot, r);
+      }
+
+      const uid = f.properties.uid;
+      const rec = {
+        status: st,
+        price: rawPrice,
+        area: rawArea,
+        streets: rawStreets,
+        dimensions: rawDim,
+        title: rawTitle,
+        notes: rawNotes,
+        plan: f.properties.plan || rawPlan,
+        plot: f.properties.no || rawPlot,
+        line,
+        fromSheet: true
+      };
+
       seen.set(uid, rec);
     });
-    for (const [uid, rec] of seen) if (rec) { sales.set(uid, rec); salesReport.accepted++; } else sales.delete(uid);
+
+    for (const [uid, rec] of seen) {
+      if (rec) {
+        sales.set(uid, rec);
+        salesReport.accepted++;
+      } else {
+        sales.delete(uid);
+      }
+    }
   }
 
   /* ---------- parcel index ---------- */
@@ -423,9 +514,9 @@
         { id: 'parcel-fill', type: 'fill', source: 'parcels', minzoom: 13,
           paint: {
             'fill-color': ['case', ['boolean', ['feature-state', 'sel'], false], '#e2c47a',
-              ['match', ['coalesce', ['feature-state', 'st'], 'unknown'], 'available', '#7fa37a', 'reserved', '#d49a3a', 'sold', '#9b5f55', 'service', ['match', ['get', 'svc'], 'recreation', '#5b8e92', 'religious', '#8d86ad', 'education', '#6f8fbf', 'transport', '#5f676f', 'utility', '#a08aa0', 'vacant', '#8c8577', '#7d8a99'], '#c9a24e']],
+              ['match', ['coalesce', ['feature-state', 'st'], 'unknown'], 'available', '#DFBE7B', 'reserved', '#d49a3a', 'sold', '#9b5f55', 'service', ['match', ['get', 'svc'], 'recreation', '#5b8e92', 'religious', '#8d86ad', 'education', '#6f8fbf', 'transport', '#5f676f', 'utility', '#a08aa0', 'vacant', '#8c8577', '#7d8a99'], '#c9a24e']],
             'fill-opacity': ['case', ['boolean', ['feature-state', 'sel'], false], 0.75,
-              ['match', ['coalesce', ['feature-state', 'st'], 'unknown'], 'unknown', 0.06, 0.55]] } },
+              ['match', ['coalesce', ['feature-state', 'st'], 'unknown'], 'unknown', 0.05, 0.65]] } },
         { id: 'parcel-line', type: 'line', source: 'parcels', minzoom: 13,
           paint: { 'line-color': '#b89656', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.35, 16, 0.9],
                    'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.3, 16, 0.8, 19, 1.6] } },
@@ -608,14 +699,21 @@
     map.setFilter('adm-sel', ['==', ['get', 'uid'], srcOf(f) === 'parcels-adm' ? f.properties.uid : '']);
     if (SIDES) map.setFilter('side-sel', ['==', ['get', 'uid'], srcOf(f) === 'parcels' ? f.properties.uid : '']);   // v1.21: an edited boundary has no verified lengths
     const p = f.properties; currentPlan = p.plan;
+    const sData = sales.get(p.uid);
     { const sl = SIDES && srcOf(f) === 'parcels' ? SIDES.listFor(p.uid) : []; $('c-sides-dt').hidden = $('c-sides').hidden = !sl.length;
       $('c-sides').innerHTML = sl.map(v => '<bdi dir="ltr" class="num">' + v + '</bdi>').join(' · ') + (sl.length ? ' م' : '');
       /* v1.22: lengths computed from the boundary, listed apart from the Suhail values */
       const gl = SIDES && SIDES.listForGeom && srcOf(f) === 'parcels' ? SIDES.listForGeom(p.uid) : []; $('c-gsides-dt').hidden = $('c-gsides').hidden = !gl.length;
       $('c-gsides').innerHTML = gl.map(v => '<bdi dir="ltr" class="num">' + (/سم/.test(v) ? v : v + ' م') + '</bdi>').join(' · '); }   // v1.23: each value carries its unit (m or ≈ cm)
-    $('c-no').textContent = p.no || 'بدون رقم';
+    $('c-no').textContent = p.no || (sData && sData.plot) || 'بدون رقم';
     $('c-uid').textContent = p.uid;
-    $('c-area').innerHTML = fmtArea(p.area);
+    $('c-area').innerHTML = (sData && sData.area) ? ('<bdi dir="ltr" class="num">' + esc(sData.area) + '</bdi>') : fmtArea(p.area);
+    if ($('c-streets-dt') && $('c-streets')) {
+      const stVal = sData && sData.streets;
+      $('c-streets-dt').hidden = !stVal;
+      $('c-streets').hidden = !stVal;
+      if (stVal) $('c-streets').textContent = stVal;
+    }
     const st = statusOf(f); const s = STATUS[st]; const el = $('c-status');
     const svc = st === 'service';   // v1.15: service land card = number, plan, area and its use — nothing else
     $('card').classList.toggle('svc', svc);
@@ -626,18 +724,32 @@
     el.textContent = s.ar; el.style.setProperty('--c', s.color || 'transparent');
     const show = (id, v) => { $(id).hidden = !v; $(id + '-dt').hidden = !v; if (v) $(id).textContent = v; };
     const pr = priceInfo(f), cur = pr ? (CURRENCY[pr.currency] || pr.currency) : '';
-    $('c-price').innerHTML = pr ? '<bdi dir="ltr" class="num">' + fmtMoney(pr.total) + '</bdi> ' + esc(cur) + (pr.unit === 'sqm' ? ' <small class="muted">(محسوب من سعر المتر)</small>' : '') : '<span class="muted">غير محدد</span>';
-    $('c-price').hidden = svc && !pr; $('c-price-dt').hidden = $('c-price').hidden;
+    if (sData && sData.price) {
+      $('c-price').innerHTML = '<bdi dir="ltr" class="num">' + esc(sData.price) + '</bdi>';
+      $('c-price').hidden = svc; $('c-price-dt').hidden = $('c-price').hidden;
+    } else {
+      $('c-price').innerHTML = pr ? '<bdi dir="ltr" class="num">' + fmtMoney(pr.total) + '</bdi> ' + esc(cur) + (pr.unit === 'sqm' ? ' <small class="muted">(محسوب من سعر المتر)</small>' : '') : '<span class="muted">غير محدد</span>';
+      $('c-price').hidden = svc && !pr; $('c-price-dt').hidden = $('c-price').hidden;
+    }
     $('c-ppm').innerHTML = pr && pr.perSqm != null ? '<bdi dir="ltr" class="num">' + fmtMoney(pr.perSqm) + '</bdi> ' + esc(cur) + ' / م²' + (pr.unit === 'total' ? ' <small class="muted">(محسوب من السعر الإجمالي)</small>' : '') : '';
     $('c-ppm').hidden = !(pr && pr.perSqm != null); $('c-ppm-dt').hidden = $('c-ppm').hidden;
     // v1.15: on service land only notes typed in the admin panel are shown (the source-file remarks are not)
-    show('c-notes', svc ? (((recOf(p.uid) || {}).notes) || '') : notesOf(f));
+    show('c-notes', svc ? (((recOf(p.uid) || {}).notes) || '') : (notesOf(f) || (sData && sData.notes) || ''));
     const ar = recOf(p.uid);
     $('c-upd').textContent = ar && ar.updatedAt ? fmtDate(ar.updatedAt) : '';
     if (!(ar && ar.updatedAt)) { $('c-upd').hidden = true; $('c-upd-dt').hidden = true; }   // v1.16: the date row appears only after an admin change
     show('c-sec', p.sec && p.sec.length ? p.sec.join('، ') : '');
-    $('c-plan').innerHTML = '<bdi dir="ltr" class="num">' + esc(p.plan) + '</bdi>';
+    $('c-plan').innerHTML = '<bdi dir="ltr" class="num">' + esc(p.plan || (sData && sData.plan) || '') + '</bdi>';
     gmapRow(f);
+    const waBox = $('c-whatsapp-box');
+    if (waBox) {
+      const pNo = p.no || (sData && sData.plot) || '';
+      const pPlan = p.plan || (sData && sData.plan) || '';
+      const waMsg = encodeURIComponent('السلام عليكم ورحمة الله، أود الاستفسار عن القطعة رقم ' + pNo + ' في مخطط ' + pPlan + ' بحي عريض المعروضة في خريطة ركن الحراملة.');
+      waBox.innerHTML = '<a href="https://wa.me/966504302102?text=' + waMsg + '" target="_blank" rel="noopener noreferrer" class="map-wa-cta-btn">'
+        + '<svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.101.005.232-.038.362.275.144.347.491 1.198.534 1.285.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.861.174.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z"/></svg>'
+        + '<span>استفسر عن هذه القطعة عبر واتساب</span></a>';
+    }
     const w = [];
     if (p.flags.includes('duplicate_number') && p.dup_n) w.push('الرقم ' + p.no + ' مكتوب على ' + (p.dup_n === 2 ? 'قطعتين' : p.dup_n + ' قطع') + ' في ملف المخطط، وهذه القطعة رقم ' + p.dup_k + ' منها. حالة البيع مرتبطة بالمعرّف فقط، لا بالرقم.');
     else if (p.flags.includes('duplicate_number')) w.push('أحد أرقام هذه القطعة مكتوب على قطعة أخرى أيضًا. حالة البيع مرتبطة بالمعرّف فقط.');
@@ -671,6 +783,9 @@
   function clearSelection(silent) {
     if (selected) map.setFeatureState({ source: srcOf(selected), id: selected.properties.uid }, { sel: false });
     selected = null; map.setFilter('parcel-sel', ['==', ['get', 'uid'], '']); map.setFilter('adm-sel', ['==', ['get', 'uid'], '']); if (SIDES) map.setFilter('side-sel', ['==', ['get', 'uid'], '']); $('card').hidden = true; $('panel').classList.remove('compact');
+    if ($('c-streets-dt')) $('c-streets-dt').hidden = true;
+    if ($('c-streets')) $('c-streets').hidden = true;
+    if ($('c-whatsapp-box')) $('c-whatsapp-box').innerHTML = '';
     if (window.AridAdmin) window.AridAdmin.onCard(null);
     if (!silent) setLevel(pinned || levelFromZoom());
   }

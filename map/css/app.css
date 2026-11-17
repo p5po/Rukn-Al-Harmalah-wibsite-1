@@ -260,3 +260,12 @@ body.mode-real .disclaimer .sat-note{color:#f0dbb4}
 .legend .lg-s{color:#d9caa5;font-weight:600}
 .legend .lg-g{color:#8fc6d8;font-weight:600}
 .facts dd.gsides{color:#8fc6d8}
+
+/* Direct WhatsApp Inquiry Button in Card */
+.c-whatsapp-box{margin-top:1.2rem;margin-bottom:.5rem}
+.map-wa-cta-btn{display:flex;align-items:center;justify-content:center;gap:.7rem;width:100%;padding:1rem 1.4rem;
+  border-radius:999px;background:linear-gradient(135deg,#DFBE7B 0%,#C5A059 100%);color:#121212;
+  font-size:var(--t-md);font-weight:700;text-decoration:none;box-shadow:0 4px 18px rgba(197,160,89,.35);
+  transition:transform .2s ease,box-shadow .2s ease}
+.map-wa-cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(197,160,89,.55);color:#000}
+.map-wa-cta-btn svg{flex:none;width:1.8rem;height:1.8rem;fill:currentColor}

@@ -645,10 +645,17 @@ function renderProperties() {
     }
 
     // Action Buttons (Automatic Haramala Map + Google Maps + WhatsApp CTA)
-    const hasHaramalaMap = Boolean(plot.plan_no && String(plot.plan_no).trim() !== "");
-    const haramalaMapUrl = hasHaramalaMap 
-      ? `map/index.html?plan=${encodeURIComponent(plot.plan_no.trim())}${plot.plot_no ? `&plot=${encodeURIComponent(plot.plot_no.trim())}` : ''}`
-      : "";
+    const hasHaramalaMap = Boolean(
+      (plot.plan_no && String(plot.plan_no).trim() !== "") || 
+      (plot.plot_no && String(plot.plot_no).trim() !== "")
+    );
+    let haramalaMapUrl = "";
+    if (hasHaramalaMap) {
+      const qParams = new URLSearchParams();
+      if (plot.plan_no && String(plot.plan_no).trim() !== "") qParams.set("plan", String(plot.plan_no).trim());
+      if (plot.plot_no && String(plot.plot_no).trim() !== "") qParams.set("plot", String(plot.plot_no).trim());
+      haramalaMapUrl = `map/index.html?${qParams.toString()}`;
+    }
 
     let buttonsHtml = "";
     if (hasHaramalaMap && hasMap) {
@@ -885,30 +892,8 @@ function initGsapAnimations() {
     });
   }
 
-  // ScrollTrigger reveals on Section Titles & Service Cards
+  // ScrollTrigger reveals on Section Titles
   if (typeof ScrollTrigger !== "undefined") {
-    // Service Cards Staggered Reveal - 100% visible by default, smooth entrance without hiding
-    const serviceCards = document.querySelectorAll("#services [data-reveal-card]");
-    if (serviceCards.length > 0) {
-      serviceCards.forEach(c => {
-        c.style.opacity = "1";
-        c.style.visibility = "visible";
-      });
-
-      gsap.from(serviceCards, {
-        scrollTrigger: {
-          trigger: "#services",
-          start: "top 90%",
-          toggleActions: "play none none none"
-        },
-        y: 30,
-        duration: 0.7,
-        stagger: 0.12,
-        ease: "power2.out",
-        clearProps: "all"
-      });
-    }
-
     gsap.utils.toArray("section").forEach(sec => {
       const heading = sec.querySelector("h2");
       if (heading) {

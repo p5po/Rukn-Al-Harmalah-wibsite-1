@@ -197,18 +197,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ========================================================
-   SERVICES SECTION: GUARANTEED VISIBILITY & CRISP DARK SURFACES
+   SERVICES SECTION: GUARANTEED 100% STATIC VISIBILITY
    ======================================================== */
-#services [data-reveal-card] {
-  opacity: 1 !important;
+#services div {
   visibility: visible !important;
-  background: #1A1A1A !important;
-  border: 1px solid rgba(197, 160, 89, 0.25) !important;
-}
-
-#services [data-reveal-card]:hover {
-  background: #242424 !important;
-  border-color: rgba(197, 160, 89, 0.5) !important;
 }
 
 @keyframes liquidMetalSpin {
