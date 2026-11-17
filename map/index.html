@@ -5,15 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>خريطة حي عريض — ركن الحراملة العقارية</title>
 <script>
-  (function() {
-    var sp = new URLSearchParams(window.location.search);
-    if (!sp.has('force_desktop')) {
-      var isMobile = (window.innerWidth <= 768) || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (isMobile) {
-        window.location.replace('mobile.html' + window.location.search);
-      }
-    }
-  })();
+  // Ensure $ is globally defined before any script runs
+  window.$ = window.$ || function(id) {
+    if (typeof id === 'string') return document.getElementById(id);
+    return id;
+  };
 </script>
 <link rel="stylesheet" href="lib/maplibre-gl.css">
 <link rel="stylesheet" href="css/app.css">

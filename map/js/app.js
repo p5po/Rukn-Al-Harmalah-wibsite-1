@@ -2,11 +2,8 @@
    All data are loaded from local files. No network requests are made. */
 (function () {
   'use strict';
-  const sp = new URLSearchParams(window.location.search);
-  if (!sp.has('force_desktop') && ((window.innerWidth <= 768) || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))) {
-    return; // Safety guard: never initialize the heavy map engine on mobile
-  }
-  const $ = id => document.getElementById(id);
+  const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  var $ = window.$ || function(id) { return typeof id === 'string' ? document.getElementById(id) : id; };
   /* Plans are listed in data/registry.js. Only plans that passed their own verification gate (display=true) are loaded. */
   const REG = window.PLAN_REGISTRY || { plans: [] };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -374,20 +371,27 @@
   }
   /* base layers (source parcels / review) skip hidden parcels; layers added later (realistic view) are handled on styledata */
   const BASE_FILTER = {}; const filtered = new WeakSet();
+  let _isApplyingHidden = false;
   function hiddenFilter(id) {
     const bf = BASE_FILTER[id]; if (!HIDDEN.length) return bf;
     const nh = ['!', ['in', ['get', 'uid'], ['literal', HIDDEN]]];
     return bf ? ['all', bf, nh] : nh;
   }
   function applyHidden(onlyNew) {
-    const ids = map.getLayersOrder ? map.getLayersOrder() : map.style._order;   // not getStyle(): it would serialise all parcel data
-    for (const id of ids) {
-      const L = map.getLayer(id); if (!L) continue;
-      if ((L.source !== 'parcels' && L.source !== 'review' && L.source !== 'sides') || L.id === 'parcel-sel' || L.id === 'side-sel') continue;
-      const obj = L;
-      if (onlyNew && filtered.has(obj)) continue;
-      if (!(L.id in BASE_FILTER) || !filtered.has(obj)) BASE_FILTER[L.id] = L.filter || null;
-      map.setFilter(L.id, hiddenFilter(L.id)); filtered.add(map.getLayer(L.id));
+    if (_isApplyingHidden) return;
+    _isApplyingHidden = true;
+    try {
+      const ids = map.getLayersOrder ? map.getLayersOrder() : (map.style ? map.style._order : []);
+      for (const id of ids) {
+        const L = map.getLayer(id); if (!L) continue;
+        if ((L.source !== 'parcels' && L.source !== 'review' && L.source !== 'sides') || L.id === 'parcel-sel' || L.id === 'side-sel') continue;
+        const obj = L;
+        if (onlyNew && filtered.has(obj)) continue;
+        if (!(L.id in BASE_FILTER) || !filtered.has(obj)) BASE_FILTER[L.id] = L.filter || null;
+        map.setFilter(L.id, hiddenFilter(L.id)); filtered.add(map.getLayer(L.id));
+      }
+    } finally {
+      _isApplyingHidden = false;
     }
   }
   let mapReady = false;
@@ -474,6 +478,7 @@
   const map = new maplibregl.Map({
     container: 'map', attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false,
     maxBounds: [[46.10, 24.15], [47.40, 25.20]], minZoom: 8.5, maxZoom: 19.5,
+    maxTileCacheSize: isMobile ? 15 : null,
     bounds: RIYADH_BOUNDS, fitBoundsOptions: { padding: PANEL_PAD() },
     style: adapt(withAdmLayers({
       version: 8, glyphs: 'emb://{fontstack}/{range}.pbf',
@@ -863,7 +868,7 @@
   map.on('mousedown', () => { tapLevel = level; }); map.on('touchstart', () => { tapLevel = level; });
   const planOpen = () => { const lv = tapLevel || level; return lv === 'plan' || lv === 'parcel'; };
   const pickBlocked = () => !!(window.AridAdmin && window.AridAdmin.mapBusy());   // v1.14: drawing / boundary editing owns the taps
-  ['parcel-fill', 'adm-fill'].forEach(L => map.on('click', L, e => { if (pickBlocked()) return; const f = e.features && e.features[0]; const lf = f && byUid.get(f.properties.uid); if (lf && planOpen()) select(lf, false); }));
+  ['parcel-fill', 'adm-fill'].forEach(L => map.on('click', L, e => { if (pickBlocked()) return; const f = e.features && e.features[0]; const lf = f && byUid.get(f.properties.uid); if (lf && (isMobile || planOpen())) select(lf, false); }));
   map.on('click', 'plan-fill', e => { if (pickBlocked()) return; const f = e.features && e.features[0]; const onParcel = planOpen() && map.queryRenderedFeatures(e.point, { layers: ['parcel-fill', 'adm-fill'] }).length;
     if (f && !onParcel && levelFromZoom() !== 'plan') go('plan', f.properties.plan); tapLevel = null; });
 
@@ -959,7 +964,9 @@
 
   /* ---------- idle reset for kiosk ---------- */
   let idleT;
-  const bump = () => { clearTimeout(idleT); const admin = document.body.classList.contains('admin-mode');
+  const bump = () => {
+    if (isMobile) return;
+    clearTimeout(idleT); const admin = document.body.classList.contains('admin-mode');
     idleT = setTimeout(() => { q = ''; render(); $('results').innerHTML = ''; if (window.AridImagery) window.AridImagery.reset();
       if (window.AridLand) window.AridLand.onIdle(); if (window.AridAdmin) window.AridAdmin.onIdle(); go('riyadh'); }, admin ? 600000 : IDLE_MS); };   // v1.14: admin mode → 10 min, then back to view mode
   ['pointerdown', 'wheel', 'keydown'].forEach(ev => window.addEventListener(ev, bump, { passive: true }));
@@ -973,8 +980,8 @@
        so the Riyadh/district views do not need them); before, the whole start-up waited for this. */
     map.getSource('parcels').setData(PAR); map.getSource('review').setData(REVIEW_FC);
     /* v1.21: side-length labels are built from the base parcels once the first view is on screen */
-    if (SIDES) setTimeout(() => { const b = SIDES.build([...BASE_UID.values()]); SIDE_BUILD = b; map.getSource('sides').setData(b.fc); }, 0);
-    if (window.AridImagery) window.AridImagery.init({ map, toast, ZO, TS });   // map-type switch (separate imagery layer; parcels untouched)
+    if (!isMobile && SIDES) setTimeout(() => { const b = SIDES.build([...BASE_UID.values()]); SIDE_BUILD = b; map.getSource('sides').setData(b.fc); }, 0);
+    if (!isMobile && window.AridImagery) window.AridImagery.init({ map, toast, ZO, TS });   // map-type switch (separate imagery layer; parcels untouched)
     Promise.all([loadSales(), STORE ? STORE.ready.catch(() => null) : null]).then(([ok]) => {
       salesLoaded = ok;
       if (!ok) toast('تعذّر تحميل ملف حالة البيع data/sales_status.csv — تُعرض كل القطع "غير محددة".', 9000);
