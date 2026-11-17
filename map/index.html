@@ -22,10 +22,6 @@
     <button data-level="plan">المخططات</button>
     <button data-level="parcel" id="trail-parcel" hidden></button>
   </nav>
-  <div class="modesw" id="modesw" role="group" aria-label="وضع الاستخدام">
-    <button data-mode="view" aria-pressed="true">وضع العرض</button>
-    <button data-mode="admin" aria-pressed="false">وضع الإدارة</button>
-  </div>
   <button class="home" id="btn-home">العودة إلى الرياض</button>
   <a href="../index.html" class="home" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;" title="العودة للموقع الرئيسي">
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -81,7 +77,6 @@
     <div id="c-whatsapp-box" class="c-whatsapp-box"></div>
     <p class="warn" id="c-warn" hidden></p>
     <div class="review" id="c-review" hidden><b>قيد المراجعة</b><span id="c-review-txt"></span></div>
-    <div class="adm-actions" id="c-admin" hidden></div>
     <p class="fine" id="c-fine">المساحة تقريبية وليست من الصك.</p>
   </section>
 </aside>
@@ -139,11 +134,6 @@
 
 <div class="toast" id="toast" role="status" hidden></div>
 
-<section class="diag" id="diag" hidden aria-label="معلومات للموظفين">
-  <div class="diag-head"><h2>معلومات تشغيلية للموظفين</h2><button id="diag-close">إغلاق</button></div>
-  <div id="diag-body"></div>
-</section>
-
 <script src="lib/maplibre-gl.js"></script>
 <script src="lib/qrcode-generator.js"></script>
 <script src="data/meta.js"></script>
@@ -176,9 +166,6 @@
 <script src="data/side_lengths.js"></script>
 <script src="data/side_lengths_geom.js"></script>
 <script src="js/sides.js"></script>
-<script src="data/admin/admin_auth.js"></script>
-<script src="data/admin/settings.js"></script>
-<script src="js/admin_auth.js"></script>
 <script src="js/land_store.js"></script>
 <script src="js/realistic.js"></script>
 <script src="js/imagery.js"></script>
@@ -190,7 +177,6 @@
 <script src="data/v127_planned_roads.js"></script>
 <script src="js/planned.js"></script>
 <script src="js/land_view.js"></script>
-<script src="js/land_admin.js"></script>
 <script src="data/v131_street_lengths.js"></script>
 <script src="data/v134_street_widths.js"></script>
 <script src="js/street_len.js"></script>

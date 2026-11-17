@@ -961,25 +961,12 @@
     $('lg-review').hidden = !REVIEW_FC.features.length;
   });
   // test hooks (used by the automated checks; harmless in production)
-  /* ---------- staff diagnostics (tap the logo 5 times within 3 s) ---------- */
-  let taps = [];
-  document.querySelector('.brand').addEventListener('click', () => {
-    const now = Date.now(); taps = taps.filter(t => now - t < 3000); taps.push(now);
-    if (taps.length >= 5) { taps = []; renderDiag(); $('diag').hidden = false; }
-  });
-  $('diag-close').addEventListener('click', () => { $('diag').hidden = true; });
+  /* ---------- staff diagnostics disabled in view-only mode ---------- */
   function reviewDiag() {
-    if (!window.PARCEL_REVIEW) return '';
-    const pl = window.PARCEL_REVIEW.plans || {};
-    const r = Object.keys(pl).map(k => `<tr><td><bdi dir="ltr">${esc(k)}</bdi></td><td>${pl[k].verified}</td><td>${pl[k].under_review}</td><td>${REL && REL.plans && REL.plans[k] ? (REL.plans[k].approved_for_clients ? 'معتمد' : 'غير معتمد — نسخة اختبار') : '—'}</td></tr>`).join('');
-    return `<h3>التحقق من المواقع (منفصل عن البيع)</h3><table><thead><tr><th>المخطط</th><th>مطابقة</th><th>قيد المراجعة</th><th>اعتماد الموقع</th></tr></thead><tbody>${r}</tbody></table>`;
+    return '';
   }
   function renderDiag() {
-    const rows = REG.plans.map(p => `<tr><td><bdi dir="ltr">${esc(p.id)}</bdi></td><td>${p.display ? 'معروض' : 'غير معروض'}</td><td>${esc(p.status)}</td><td>${esc(p.blocked_reason || p.location_source || (p.worst_heldout_m != null ? 'أسوأ خطأ تحقق مستقل ' + p.worst_heldout_m + ' م' : ''))}</td></tr>`).join('');
-    const rj = salesReport.rejected.slice(0, 40).map(r => `<li>سطر ${r.line}: ${esc(r.reason)}</li>`).join('');
-    $('diag-body').innerHTML = (`<h3>ملف حالة البيع</h3><p>المصدر: <bdi dir="ltr">${esc(salesSource || '—')}</bdi> — الصيغة: ${esc(salesReport.schema || '—')}<br>صفوف مقبولة: ${salesReport.accepted} — صفوف مرفوضة: ${salesReport.rejected.length}</p>${rj ? '<ul>' + rj + '</ul>' : ''}
-      ${STORE ? `<h3>نظام إدارة الأراضي (v1.14)</h3><p>تعديلات محفوظة: ${Object.keys(STORE.store.parcels).length} قطعة — رقم الإصدار ${STORE.store.rev} — المصدر عند التشغيل: ${esc(STORE.state.source)} — الحفظ على القرص: ${STORE.state.disk ? 'يعمل' : 'غير متاح'}</p>` : ''}
-      <h3>المخططات</h3><table><thead><tr><th>المخطط</th><th>العرض</th><th>الحالة</th><th>ملاحظة</th></tr></thead><tbody>${rows}</tbody></table>` + reviewDiag() + (window.AridImagery ? window.AridImagery.diagHTML() : '')).replace(/منصة سهيل|طبقة قطع سهيل|طبقة سهيل|سهيل/g, 'المصدر المرجعي');   // v1.18
+    if (!$('diag-body')) return;
   }
   // test hooks (used by the automated checks; harmless in production)
   window.__app = { get salesSource() { return salesSource; }, salesReport, map, go, byNo, byUid, sales, statusOf,
