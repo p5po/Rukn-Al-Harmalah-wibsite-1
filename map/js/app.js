@@ -2,6 +2,10 @@
    All data are loaded from local files. No network requests are made. */
 (function () {
   'use strict';
+  const sp = new URLSearchParams(window.location.search);
+  if (!sp.has('force_desktop') && ((window.innerWidth <= 768) || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))) {
+    return; // Safety guard: never initialize the heavy map engine on mobile
+  }
   const $ = id => document.getElementById(id);
   /* Plans are listed in data/registry.js. Only plans that passed their own verification gate (display=true) are loaded. */
   const REG = window.PLAN_REGISTRY || { plans: [] };

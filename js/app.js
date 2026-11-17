@@ -649,6 +649,12 @@ function renderProperties() {
       const qParams = new URLSearchParams();
       if (plot.plan_no && String(plot.plan_no).trim() !== "") qParams.set("plan", String(plot.plan_no).trim());
       if (plot.plot_no && String(plot.plot_no).trim() !== "") qParams.set("plot", String(plot.plot_no).trim());
+      if (plot.area && String(plot.area).trim() !== "") qParams.set("area", String(plot.area).trim());
+      if (plot.price && String(plot.price).trim() !== "") qParams.set("price", String(plot.price).trim());
+      if (plot.status && String(plot.status).trim() !== "") qParams.set("status", String(plot.status).trim());
+      if (plot.dimensions && String(plot.dimensions).trim() !== "") qParams.set("dimensions", String(plot.dimensions).trim());
+      if (plot.streets && String(plot.streets).trim() !== "") qParams.set("streets", String(plot.streets).trim());
+      if (plot.map_url && String(plot.map_url).trim() !== "") qParams.set("map_url", String(plot.map_url).trim());
       haramalaMapUrl = `map/index.html?${qParams.toString()}`;
     }
 
