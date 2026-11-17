@@ -1,0 +1,384 @@
+/* ==========================================================================
+   MOBILE-ONLY RESPONSIVE UI OVERHAUL (max-width: 768px)
+   شركة ركن الحراملة العقارية — خريطة حي عريض
+   Keeps desktop 100% intact while providing a clean, luxury view-only mobile UX
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* ---------------- 1. Full-Screen Clean Map Canvas ---------------- */
+  #map {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1 !important;
+  }
+
+  /* ---------------- 2. Sleek Compact Topbar ---------------- */
+  .topbar {
+    height: 3.8rem !important;
+    padding: 0 0.85rem !important;
+    gap: 0.5rem !important;
+    background: linear-gradient(to bottom, rgba(18, 18, 18, 0.96) 65%, rgba(18, 18, 18, 0)) !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    z-index: 10 !important;
+  }
+  .brand {
+    height: 2.3rem !important;
+    max-width: 130px !important;
+    width: auto !important;
+  }
+  /* Hide desktop breadcrumbs & redundant buttons on mobile to avoid wrapping */
+  .trail,
+  #btn-home {
+    display: none !important;
+  }
+  /* Prominent, touch-friendly back to main site button */
+  .topbar a.home {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    padding: 0.4rem 0.85rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    border-radius: 999px !important;
+    background: #1A1A1A !important;
+    border: 1px solid #C5A059 !important;
+    color: #DFBE7B !important;
+    white-space: nowrap !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+    text-decoration: none !important;
+  }
+  .topbar a.home svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  /* ---------------- 3. Hide Desktop Clutter & Filters on Mobile ---------------- */
+  .search,
+  .keypad,
+  .qrow,
+  .smode,
+  .again,
+  .hint,
+  .legend,
+  #land,
+  .land,
+  .land-tiles,
+  .land-adv,
+  .land-res,
+  .disclaimer,
+  .v18-places,
+  .v18-dist,
+  .v18-card {
+    display: none !important;
+  }
+
+  /* ---------------- 4. Reposition Floating Controls ---------------- */
+  .zoom {
+    inset-inline-end: 0.8rem !important;
+    inset-inline-start: auto !important;
+    top: 4.4rem !important;
+    bottom: auto !important;
+    gap: 0.4rem !important;
+    z-index: 5 !important;
+  }
+  .zoom button {
+    width: 2.6rem !important;
+    height: 2.6rem !important;
+    border-radius: 10px !important;
+    background: rgba(26, 26, 26, 0.94) !important;
+    border: 1px solid rgba(197, 160, 89, 0.35) !important;
+    color: #DFBE7B !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  }
+  .zoom button svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  .maptype {
+    top: 4.4rem !important;
+    bottom: auto !important;
+    inset-inline-start: 0.8rem !important;
+    inset-inline-end: auto !important;
+    z-index: 5 !important;
+  }
+  .mt-btn {
+    min-height: 2.6rem !important;
+    padding: 0.3rem 0.75rem !important;
+    border-radius: 999px !important;
+    background: rgba(26, 26, 26, 0.94) !important;
+    border: 1px solid rgba(197, 160, 89, 0.35) !important;
+    gap: 0.35rem !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  }
+  .mt-btn svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    color: #DFBE7B !important;
+  }
+  .mt-btn-l {
+    display: none !important;
+  }
+  .mt-btn-v {
+    font-size: 0.75rem !important;
+    color: #DFBE7B !important;
+    font-weight: 600 !important;
+  }
+  .mt-pop {
+    top: calc(100% + 0.5rem) !important;
+    bottom: auto !important;
+    inset-inline-start: 0 !important;
+    inset-inline-end: auto !important;
+    width: min(18rem, 85vw) !important;
+    background: #1A1A1A !important;
+    border: 1px solid #C5A059 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  /* ---------------- 5. Mobile Panel Behavior ---------------- */
+  /* When card is hidden: panel is invisible and non-interactive */
+  .panel {
+    position: static !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+  }
+  .panel > section:not(#card) {
+    display: none !important;
+  }
+
+  /* ---------------- 6. CLEAN MOBILE BOTTOM SHEET (DRAWER) ---------------- */
+  #card[hidden] {
+    display: none !important;
+  }
+
+  #card:not([hidden]) {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    inset-inline: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-height: 80vh !important;
+    margin: 0 !important;
+    padding: 0.75rem 1.1rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) !important;
+    background: #1A1A1A !important;
+    border-top: 2px solid #C5A059 !important;
+    border-inline: none !important;
+    border-bottom: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.9) !important;
+    z-index: 9999 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    clip-path: none !important;
+    pointer-events: auto !important;
+    animation: mobileDrawerSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  /* Touch pull-handle indicator at top of drawer */
+  #card:not([hidden])::before {
+    content: "" !important;
+    display: block !important;
+    width: 44px !important;
+    height: 4px !important;
+    border-radius: 999px !important;
+    background: rgba(197, 160, 89, 0.45) !important;
+    margin: 0 auto 0.75rem !important;
+    flex: none !important;
+  }
+
+  /* Header row with prominent close button */
+  .card-head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.8rem !important;
+    margin-bottom: 0.15rem !important;
+  }
+  .card-label {
+    font-size: 0.82rem !important;
+    color: #a09885 !important;
+    font-weight: 500 !important;
+  }
+  .close, #btn-clear {
+    padding: 0.35rem 0.95rem !important;
+    min-height: 32px !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(197, 160, 89, 0.4) !important;
+    color: #DFBE7B !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+  }
+  .close:active, #btn-clear:active {
+    background: #C5A059 !important;
+    color: #000000 !important;
+  }
+
+  /* Main Plot Headline */
+  .pno, #c-no {
+    font-size: 1.85rem !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+    color: #DFBE7B !important;
+    margin: 0.1rem 0 0.65rem !important;
+    text-align: start !important;
+    background: none !important;
+    -webkit-text-fill-color: #DFBE7B !important;
+  }
+
+  /* ---------------- 7. Clean Typography for Facts (2-Column Grid) ---------------- */
+  .facts {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.45rem 0.65rem !important;
+    margin: 0 0 0.8rem !important;
+    font-size: 0.85rem !important;
+    line-height: 1.35 !important;
+    padding-bottom: 0.6rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  .facts dt {
+    color: #9e9584 !important;
+    font-size: 0.75rem !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+  }
+  .facts dd {
+    margin: 0.1rem 0 0 !important;
+    font-weight: 700 !important;
+    color: #f5eedf !important;
+    font-size: 0.92rem !important;
+  }
+  #c-price {
+    color: #DFBE7B !important;
+    font-weight: 800 !important;
+  }
+
+  /* Hide redundant desktop metadata rows */
+  #c-uid, .uid, dt:has(+ dd #c-uid),
+  #c-upd, #c-upd-dt,
+  #c-sec, #c-sec-dt,
+  .fine, #c-fine,
+  .gmap-qr {
+    display: none !important;
+  }
+
+  /* ---------------- 8. Vertical Full-Width Action Buttons ---------------- */
+  /* WhatsApp Inquiry Button (Primary Gold Button) */
+  .c-whatsapp-box {
+    margin-top: 0.2rem !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+  }
+  .map-wa-cta-btn {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 3.25rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.6rem !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, #DFBE7B 0%, #C5A059 100%) !important;
+    color: #000000 !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    box-shadow: 0 4px 18px rgba(197, 160, 89, 0.35) !important;
+    transition: transform 0.15s ease !important;
+  }
+  .map-wa-cta-btn:active {
+    transform: scale(0.98) !important;
+  }
+  .map-wa-cta-btn svg {
+    width: 1.35rem !important;
+    height: 1.35rem !important;
+    fill: currentColor !important;
+    flex: none !important;
+  }
+
+  /* Google Maps Location Button (Secondary Styled Button) */
+  #c-gmap-dt {
+    display: none !important;
+  }
+  #c-gmap {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    margin-top: 0.4rem !important;
+  }
+  #c-gmap .gmap-ll {
+    display: none !important;
+  }
+  .gmap-link {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 3.1rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.6rem !important;
+    padding: 0.7rem 1rem !important;
+    border-radius: 12px !important;
+    background: #242424 !important;
+    border: 1px solid rgba(197, 160, 89, 0.45) !important;
+    color: #DFBE7B !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: background 0.15s ease !important;
+  }
+  .gmap-link:active {
+    background: #303030 !important;
+  }
+  .gmap-ic {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    flex: none !important;
+  }
+
+  /* Share / Copy Plot Link Button ( خريطة الحراملة ) */
+  .map-share-link-btn {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 2.9rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    margin-top: 0.4rem !important;
+    padding: 0.6rem 1rem !important;
+    border-radius: 12px !important;
+    background: rgba(197, 160, 89, 0.1) !important;
+    border: 1px dashed rgba(197, 160, 89, 0.5) !important;
+    color: #DFBE7B !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+  }
+  .map-share-link-btn:active {
+    background: rgba(197, 160, 89, 0.2) !important;
+  }
+}
+
+@keyframes mobileDrawerSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

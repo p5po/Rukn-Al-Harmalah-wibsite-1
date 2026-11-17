@@ -316,7 +316,7 @@
     const url = 'https://www.google.com/maps/search/?api=1&query=' + lat + '%2C' + lon;
     let qr = '';
     try { if (window.qrcode) { const q = window.qrcode(0, 'M'); q.addData(url); q.make(); qr = q.createSvgTag({ cellSize: 3, margin: 2, scalable: true }); } } catch (e) { qr = ''; }
-    dd.innerHTML = '<a class="gmap-link" href="' + url + '" target="_blank" rel="noopener noreferrer">' + GMAP_ICON + '<span>فتح في Google Maps</span></a>'
+    dd.innerHTML = '<a class="gmap-link" href="' + url + '" target="_blank" rel="noopener noreferrer">' + GMAP_ICON + '<span>الموقع على خرائط قوقل (Google Maps)</span></a>'
       + '<span class="gmap-ll"><bdi dir="ltr" class="num">' + lat + ', ' + lon + '</bdi></span>'
       + (qr ? '<span class="gmap-qr" title="امسح الرمز بالجوال لفتح الموقع">' + qr + '<small>امسح بالجوال</small></span>' : '');
   }
@@ -423,7 +423,12 @@
     if (rv && rv.ref_no && rv.codes.some(c => c === 'NUM_MISSING_OURS' || c === 'NUM_PARTIAL_OURS')) { const k = f.properties.plan + '|' + normNo(rv.ref_no); if (!byAlias.has(k)) byAlias.set(k, []); byAlias.get(k).push(f); } }
 
   /* ---------- map ---------- */
-  const PANEL_PAD = () => ({ top: 110, bottom: 90, left: 120, right: (window.innerWidth > 1100 ? 440 : 360) + 60 });
+  const PANEL_PAD = () => {
+    if (window.innerWidth <= 768) {
+      return { top: 75, bottom: Math.round(Math.min(window.innerHeight * 0.45, 340)), left: 20, right: 20 };
+    }
+    return { top: 110, bottom: 90, left: 120, right: (window.innerWidth > 1100 ? 440 : 360) + 60 };
+  };
   /* ---------- scale map typography & zoom thresholds with the screen (1920 px wide = reference) ---------- */
   const TS = Math.min(2.4, Math.max(0.85, Math.min(innerWidth, innerHeight) / 1080));   // text/line scale factor (matches CSS 1.6vmin)
   const ZO = Math.log2(TS);                                      // same geography appears ZO zoom levels deeper on a bigger canvas
@@ -748,7 +753,24 @@
       const waMsg = encodeURIComponent('السلام عليكم ورحمة الله، أود الاستفسار عن القطعة رقم ' + pNo + ' في مخطط ' + pPlan + ' بحي عريض المعروضة في خريطة ركن الحراملة.');
       waBox.innerHTML = '<a href="https://wa.me/966504302102?text=' + waMsg + '" target="_blank" rel="noopener noreferrer" class="map-wa-cta-btn">'
         + '<svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.101.005.232-.038.362.275.144.347.491 1.198.534 1.285.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.861.174.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z"/></svg>'
-        + '<span>استفسر عن هذه القطعة عبر واتساب</span></a>';
+        + '<span>خريطة الحراملة • استفسار واتساب</span></a>'
+        + '<button type="button" class="map-share-link-btn" id="btn-share-plot" title="نسخ رابط القطعة في خريطة الحراملة">'
+        + '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>'
+        + '<span>مشاركة رابط القطعة في خريطة الحراملة</span></button>';
+      const shareBtn = $('btn-share-plot');
+      if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+          const u = new URL(window.location.href);
+          if (pPlan) u.searchParams.set('plan', pPlan);
+          if (pNo) u.searchParams.set('plot', pNo);
+          const fullUrl = u.toString();
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(fullUrl).then(() => toast('تم نسخ رابط القطعة في خريطة الحراملة بنجاح', 3500));
+          } else {
+            prompt('انسخ رابط القطعة:', fullUrl);
+          }
+        });
+      }
     }
     const w = [];
     if (p.flags.includes('duplicate_number') && p.dup_n) w.push('الرقم ' + p.no + ' مكتوب على ' + (p.dup_n === 2 ? 'قطعتين' : p.dup_n + ' قطع') + ' في ملف المخطط، وهذه القطعة رقم ' + p.dup_k + ' منها. حالة البيع مرتبطة بالمعرّف فقط، لا بالرقم.');
@@ -773,7 +795,9 @@
     $('panel').classList.add('compact'); $('results').innerHTML = '';
     if (window.AridAdmin) window.AridAdmin.onCard(f);
     if (keepView) return;
-    requestAnimationFrame(() => $('card').scrollIntoView({ block: 'nearest' }));
+    if (window.innerWidth > 768) {
+      requestAnimationFrame(() => $('card').scrollIntoView({ block: 'nearest' }));
+    }
     if (fly) {
       const c = [p.lx, p.ly];
       map.flyTo({ center: c, zoom: Math.max(map.getZoom(), 17.6 + ZO), padding: PANEL_PAD(), duration: 1400 });
