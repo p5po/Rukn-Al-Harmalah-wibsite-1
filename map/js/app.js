@@ -711,6 +711,7 @@
       const gl = SIDES && SIDES.listForGeom && srcOf(f) === 'parcels' ? SIDES.listForGeom(p.uid) : []; $('c-gsides-dt').hidden = $('c-gsides').hidden = !gl.length;
       $('c-gsides').innerHTML = gl.map(v => '<bdi dir="ltr" class="num">' + (/سم/.test(v) ? v : v + ' م') + '</bdi>').join(' · '); }   // v1.23: each value carries its unit (m or ≈ cm)
     $('c-no').textContent = p.no || (sData && sData.plot) || 'بدون رقم';
+    if ($('c-no-inline')) $('c-no-inline').textContent = p.no || (sData && sData.plot) || '—';
     $('c-uid').textContent = p.uid;
     $('c-area').innerHTML = (sData && sData.area) ? ('<bdi dir="ltr" class="num">' + esc(sData.area) + '</bdi>') : fmtArea(p.area);
     if ($('c-streets-dt') && $('c-streets')) {
@@ -792,6 +793,9 @@
     }
     $('c-review').hidden = !rv;
     $('card').hidden = false;
+    $('card').classList.remove('collapsed');
+    const dTxt = document.querySelector('.sheet-down-txt');
+    if (dTxt) dTxt.textContent = 'نزول للخريطة';
     $('panel').classList.add('compact'); $('results').innerHTML = '';
     if (window.AridAdmin) window.AridAdmin.onCard(f);
     if (keepView) return;
@@ -806,7 +810,14 @@
   }
   function clearSelection(silent) {
     if (selected) map.setFeatureState({ source: srcOf(selected), id: selected.properties.uid }, { sel: false });
-    selected = null; map.setFilter('parcel-sel', ['==', ['get', 'uid'], '']); map.setFilter('adm-sel', ['==', ['get', 'uid'], '']); if (SIDES) map.setFilter('side-sel', ['==', ['get', 'uid'], '']); $('card').hidden = true; $('panel').classList.remove('compact');
+    selected = null; map.setFilter('parcel-sel', ['==', ['get', 'uid'], '']); map.setFilter('adm-sel', ['==', ['get', 'uid'], '']); if (SIDES) map.setFilter('side-sel', ['==', ['get', 'uid'], '']);
+    if ($('card')) {
+      $('card').hidden = true;
+      $('card').classList.remove('collapsed');
+      const dTxt0 = document.querySelector('.sheet-down-txt');
+      if (dTxt0) dTxt0.textContent = 'نزول للخريطة';
+    }
+    $('panel').classList.remove('compact');
     if ($('c-streets-dt')) $('c-streets-dt').hidden = true;
     if ($('c-streets')) $('c-streets').hidden = true;
     if ($('c-whatsapp-box')) $('c-whatsapp-box').innerHTML = '';
@@ -814,6 +825,34 @@
     if (!silent) setLevel(pinned || levelFromZoom());
   }
   $('btn-clear').addEventListener('click', () => clearSelection(false));
+  const downBtn = $('btn-sheet-down');
+  if (downBtn) {
+    downBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = $('card');
+      const isCollapsed = card.classList.toggle('collapsed');
+      const txt = downBtn.querySelector('.sheet-down-txt');
+      if (txt) txt.textContent = isCollapsed ? 'رفع التفاصيل' : 'نزول للخريطة';
+      if (isCollapsed && typeof map !== 'undefined' && selected) {
+        map.easeTo({ padding: { top: 75, bottom: 85, left: 20, right: 20 }, duration: 400 });
+      } else if (!isCollapsed && typeof map !== 'undefined' && selected) {
+        map.easeTo({ padding: PANEL_PAD(), duration: 400 });
+      }
+    });
+  }
+  const cardEl = $('card');
+  if (cardEl) {
+    cardEl.addEventListener('click', (e) => {
+      if (cardEl.classList.contains('collapsed') && !e.target.closest('#btn-clear') && !e.target.closest('#btn-sheet-down')) {
+        cardEl.classList.remove('collapsed');
+        const txt = document.querySelector('.sheet-down-txt');
+        if (txt) txt.textContent = 'نزول للخريطة';
+        if (typeof map !== 'undefined' && selected) {
+          map.easeTo({ padding: PANEL_PAD(), duration: 400 });
+        }
+      }
+    });
+  }
   /* v1.12: once a plan is open (level plan/parcel) a tap on a parcel always opens its card, even at the plan's overview zoom;
      at Riyadh/district level a tap still opens the plan. Both handlers read the level as it was before the tap. */
   let tapLevel = null;

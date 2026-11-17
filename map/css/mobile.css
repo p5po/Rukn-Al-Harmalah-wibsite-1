@@ -4,6 +4,14 @@
    Keeps desktop 100% intact while providing a clean, luxury view-only mobile UX
    ========================================================================== */
 
+/* Hide mobile-specific drawer controls on desktop completely */
+@media (min-width: 769px) {
+  .btn-sheet-down,
+  .pno-inline {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   /* ---------------- 1. Full-Screen Clean Map Canvas ---------------- */
   #map {
@@ -184,6 +192,7 @@
     overscroll-behavior: contain !important;
     clip-path: none !important;
     pointer-events: auto !important;
+    transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), min-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), padding 0.25s ease !important;
     animation: mobileDrawerSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 
@@ -199,19 +208,61 @@
     flex: none !important;
   }
 
-  /* Header row with prominent close button */
+  /* Header row with Title and Actions (زر النزول وزر الإغلاق) */
   .card-head {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 0.8rem !important;
+    gap: 0.5rem !important;
     margin-bottom: 0.15rem !important;
+  }
+  .card-head-title {
+    display: flex !important;
+    align-items: baseline !important;
+    gap: 0.4rem !important;
+    min-width: 0 !important;
   }
   .card-label {
     font-size: 0.82rem !important;
     color: #a09885 !important;
     font-weight: 500 !important;
+    white-space: nowrap !important;
   }
+  .pno-inline {
+    display: none !important;
+  }
+
+  .card-head-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    flex: none !important;
+  }
+
+  /* زر نزول من المعلومات لتصفح الأراضي المجاورة */
+  .btn-sheet-down {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    padding: 0.35rem 0.8rem !important;
+    min-height: 32px !important;
+    border-radius: 999px !important;
+    background: rgba(197, 160, 89, 0.15) !important;
+    border: 1px solid #C5A059 !important;
+    color: #DFBE7B !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+  }
+  .btn-sheet-down:active {
+    background: #C5A059 !important;
+    color: #000000 !important;
+  }
+  .btn-sheet-down svg {
+    transition: transform 0.25s ease !important;
+  }
+
   .close, #btn-clear {
     padding: 0.35rem 0.95rem !important;
     min-height: 32px !important;
@@ -228,7 +279,56 @@
     color: #000000 !important;
   }
 
-  /* Main Plot Headline */
+  /* ---------------- 7. COLLAPSED / MINIMIZED STATE (حالة النزول) ---------------- */
+  #card.collapsed {
+    max-height: 62px !important;
+    min-height: 62px !important;
+    overflow: hidden !important;
+    padding: 0.45rem 1rem 0.5rem !important;
+    border-radius: 18px 18px 0 0 !important;
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.85) !important;
+    cursor: pointer !important;
+  }
+  #card.collapsed::before {
+    margin: 0 auto 0.25rem !important;
+    width: 36px !important;
+    height: 3px !important;
+    background: rgba(197, 160, 89, 0.35) !important;
+  }
+  #card.collapsed .pno,
+  #card.collapsed .facts,
+  #card.collapsed .c-whatsapp-box,
+  #card.collapsed #c-gmap,
+  #card.collapsed .warn,
+  #card.collapsed .review,
+  #card.collapsed .fine,
+  #card.collapsed #c-use {
+    display: none !important;
+  }
+  #card.collapsed .pno-inline {
+    display: inline-block !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #DFBE7B !important;
+    direction: ltr !important;
+  }
+  #card.collapsed .card-label {
+    font-size: 0.75rem !important;
+    color: #a09885 !important;
+  }
+  #card.collapsed .btn-sheet-down {
+    background: linear-gradient(135deg, #DFBE7B 0%, #C5A059 100%) !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+    border: none !important;
+    box-shadow: 0 2px 10px rgba(197, 160, 89, 0.3) !important;
+  }
+  #card.collapsed .btn-sheet-down svg {
+    transform: rotate(180deg) !important;
+  }
+
+  /* ---------------- 8. EXPANDED CONTENT TYPOGRAPHY & BUTTONS ---------------- */
+  /* Main Plot Headline (when expanded) */
   .pno, #c-no {
     font-size: 1.85rem !important;
     font-weight: 800 !important;
@@ -240,7 +340,7 @@
     -webkit-text-fill-color: #DFBE7B !important;
   }
 
-  /* ---------------- 7. Clean Typography for Facts (2-Column Grid) ---------------- */
+  /* Clean Typography for Facts (2-Column Grid) */
   .facts {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -277,7 +377,7 @@
     display: none !important;
   }
 
-  /* ---------------- 8. Vertical Full-Width Action Buttons ---------------- */
+  /* Vertical Full-Width Action Buttons */
   /* WhatsApp Inquiry Button (Primary Gold Button) */
   .c-whatsapp-box {
     margin-top: 0.2rem !important;
