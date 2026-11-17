@@ -7,7 +7,8 @@
 /* Hide mobile-specific drawer controls on desktop completely */
 @media (min-width: 769px) {
   .btn-sheet-down,
-  .pno-inline {
+  .pno-inline,
+  .mobile-plan-picker {
     display: none !important;
   }
 }
@@ -42,6 +43,28 @@
   #btn-home {
     display: none !important;
   }
+  /* Mobile Plan Picker Dropdown */
+  .mobile-plan-picker {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 2.2rem !important;
+    padding: 0 0.65rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    border-radius: 999px !important;
+    background: #1A1A1A !important;
+    border: 1px solid #C5A059 !important;
+    color: #DFBE7B !important;
+    cursor: pointer !important;
+    outline: none !important;
+    max-width: 135px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+  }
+  .mobile-plan-picker option {
+    background: #1A1A1A !important;
+    color: #DFBE7B !important;
+  }
+
   /* Prominent, touch-friendly back to main site button */
   .topbar a.home {
     display: inline-flex !important;

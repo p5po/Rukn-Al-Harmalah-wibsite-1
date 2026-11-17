@@ -5,7 +5,58 @@
   /* Plans are listed in data/registry.js. Only plans that passed their own verification gate (display=true) are loaded. */
   const REG = window.PLAN_REGISTRY || { plans: [] };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const shown = REG.plans.filter(p => p.display && p.file);
+  const allShown = REG.plans.filter(p => p.display && p.file);
+
+  // Mobile optimization (<= 768px): load only the requested plan to keep memory low and prevent iOS Safari crashes
+  const isMobile = window.innerWidth <= 768;
+  let shown = allShown;
+  let activeRequestedPlan = null;
+
+  if (isMobile) {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const rawPlan = (sp.get('plan') || '').trim();
+      const rawPlot = (sp.get('plot') || sp.get('parcel') || '').trim();
+
+      if (rawPlan) {
+        const cleanPlanMatch = rawPlan.match(/\d+[\w-]*/i);
+        const normPlan = cleanPlanMatch ? cleanPlanMatch[0] : rawPlan;
+        const normNum = normPlan.replace(/[^0-9]/g, '');
+
+        let match = allShown.find(p => p.id.toLowerCase() === normPlan.toLowerCase());
+        if (!match && normNum) match = allShown.find(p => p.id.replace(/[^0-9]/g, '') === normNum);
+        if (!match) match = allShown.find(p => (p.label && p.label.includes(normPlan)) || (p.aliases && p.aliases.includes(normPlan)));
+        if (match) {
+          activeRequestedPlan = match.id;
+          shown = [match];
+        }
+      }
+
+      if (!activeRequestedPlan && rawPlot && window.SALES_CSV) {
+        const m = window.SALES_CSV.match(new RegExp('(?:^|\\n)([^:,]+):' + rawPlot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ',', 'm'));
+        if (m && m[1]) {
+          const planFromCsv = m[1].trim();
+          const match = allShown.find(p => p.id === planFromCsv || p.id.replace(/[^0-9]/g, '') === planFromCsv.replace(/[^0-9]/g, ''));
+          if (match) {
+            activeRequestedPlan = match.id;
+            shown = [match];
+          }
+        }
+      }
+
+      if (!activeRequestedPlan) {
+        const defaultPlan = allShown.find(p => p.id === '3099') || allShown[0];
+        if (defaultPlan) {
+          activeRequestedPlan = defaultPlan.id;
+          shown = [defaultPlan];
+        }
+      }
+    } catch (e) {
+      console.warn('[Haramala Map] Mobile lazy-load plan resolution error:', e);
+      shown = allShown.slice(0, 1);
+    }
+  }
+
   const loadScript = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(src); document.head.appendChild(s); });
   /* v1.19: the plan files download in parallel (async=false keeps their execution order) — was one after another */
   const loadOrdered = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = false; s.onload = res; s.onerror = () => rej(src); document.head.appendChild(s); });
@@ -21,6 +72,25 @@
   const OUT = { type: 'FeatureCollection', features: PLANS.map(p => p.outline) };
   const ALL_BBOX = PLANS.length ? [Math.min(...PLANS.map(p => p.bbox[0])), Math.min(...PLANS.map(p => p.bbox[1])), Math.max(...PLANS.map(p => p.bbox[2])), Math.max(...PLANS.map(p => p.bbox[3]))] : [46.74, 24.42, 46.80, 24.46];
   let currentPlan = PLANS.length === 1 ? PLANS[0].meta.id : null;
+  const picker = $('mobile-plan-picker');
+  if (picker && isMobile) {
+    picker.innerHTML = '';
+    allShown.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.label || ('مخطط ' + p.id);
+      if (currentPlan === p.id) opt.selected = true;
+      picker.appendChild(opt);
+    });
+    picker.hidden = false;
+    picker.addEventListener('change', function() {
+      const u = new URL(window.location.href);
+      u.searchParams.set('plan', this.value);
+      u.searchParams.delete('plot');
+      u.searchParams.delete('parcel');
+      window.location.href = u.toString();
+    });
+  }
   const planLabel = id => 'مخطط <bdi dir="ltr">' + esc(id) + '</bdi>';
   // district name shown in the trail for a plan whose registry entry names its own district (v1.5 r2: 2817 → حي الحائر); all other plans keep «حي عريض»
   const DISTRICT_OF = Object.fromEntries(shown.filter(p => p.district_label).map(p => [p.id, p.district_label]));
@@ -369,21 +439,29 @@
     map.setFeatureState({ source: srcOf(f), id: uid }, { st: statusOf(f), pt: pr ? pr.total : -1, pm: pr && pr.perSqm != null ? pr.perSqm : -1 });
   }
   /* base layers (source parcels / review) skip hidden parcels; layers added later (realistic view) are handled on styledata */
-  const BASE_FILTER = {}; const filtered = new WeakSet();
+  const BASE_FILTER = {};
+  const filteredLayerIds = new Set();
+  let _isApplyingHidden = false;
   function hiddenFilter(id) {
     const bf = BASE_FILTER[id]; if (!HIDDEN.length) return bf;
     const nh = ['!', ['in', ['get', 'uid'], ['literal', HIDDEN]]];
     return bf ? ['all', bf, nh] : nh;
   }
   function applyHidden(onlyNew) {
-    const ids = map.getLayersOrder ? map.getLayersOrder() : map.style._order;   // not getStyle(): it would serialise all parcel data
-    for (const id of ids) {
-      const L = map.getLayer(id); if (!L) continue;
-      if ((L.source !== 'parcels' && L.source !== 'review' && L.source !== 'sides') || L.id === 'parcel-sel' || L.id === 'side-sel') continue;
-      const obj = L;
-      if (onlyNew && filtered.has(obj)) continue;
-      if (!(L.id in BASE_FILTER) || !filtered.has(obj)) BASE_FILTER[L.id] = L.filter || null;
-      map.setFilter(L.id, hiddenFilter(L.id)); filtered.add(map.getLayer(L.id));
+    if (_isApplyingHidden) return;
+    _isApplyingHidden = true;
+    try {
+      const ids = map.getLayersOrder ? map.getLayersOrder() : ((map.style && map.style._order) || []);
+      for (const id of ids) {
+        const L = map.getLayer(id); if (!L) continue;
+        if ((L.source !== 'parcels' && L.source !== 'review' && L.source !== 'sides') || L.id === 'parcel-sel' || L.id === 'side-sel') continue;
+        if (onlyNew && filteredLayerIds.has(id)) continue;
+        if (!(id in BASE_FILTER)) BASE_FILTER[id] = L.filter || null;
+        map.setFilter(id, hiddenFilter(id));
+        filteredLayerIds.add(id);
+      }
+    } finally {
+      _isApplyingHidden = false;
     }
   }
   let mapReady = false;
@@ -470,7 +548,7 @@
   const map = new maplibregl.Map({
     container: 'map', attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false,
     maxBounds: [[46.10, 24.15], [47.40, 25.20]], minZoom: 8.5, maxZoom: 19.5,
-    bounds: RIYADH_BOUNDS, fitBoundsOptions: { padding: PANEL_PAD() },
+    bounds: (isMobile && PLANS.length === 1) ? [[PLANS[0].bbox[0], PLANS[0].bbox[1]], [PLANS[0].bbox[2], PLANS[0].bbox[3]]] : RIYADH_BOUNDS, fitBoundsOptions: { padding: PANEL_PAD() },
     style: adapt(withAdmLayers({
       version: 8, glyphs: 'emb://{fontstack}/{range}.pbf',
       sources: {
@@ -804,7 +882,11 @@
     }
     if (fly) {
       const c = [p.lx, p.ly];
-      map.flyTo({ center: c, zoom: Math.max(map.getZoom(), 17.6 + ZO), padding: PANEL_PAD(), duration: 1400 });
+      if (isMobile) {
+        map.jumpTo({ center: c, zoom: Math.max(map.getZoom(), 17.6 + ZO), padding: PANEL_PAD() });
+      } else {
+        map.flyTo({ center: c, zoom: Math.max(map.getZoom(), 17.6 + ZO), padding: PANEL_PAD(), duration: 1400 });
+      }
     }
     setLevel('parcel');
   }
@@ -955,7 +1037,9 @@
 
   /* ---------- idle reset for kiosk ---------- */
   let idleT;
-  const bump = () => { clearTimeout(idleT); const admin = document.body.classList.contains('admin-mode');
+  const bump = () => {
+    if (isMobile) return; // Prevent kiosk reset on mobile devices
+    clearTimeout(idleT); const admin = document.body.classList.contains('admin-mode');
     idleT = setTimeout(() => { q = ''; render(); $('results').innerHTML = ''; if (window.AridImagery) window.AridImagery.reset();
       if (window.AridLand) window.AridLand.onIdle(); if (window.AridAdmin) window.AridAdmin.onIdle(); go('riyadh'); }, admin ? 600000 : IDLE_MS); };   // v1.14: admin mode → 10 min, then back to view mode
   ['pointerdown', 'wheel', 'keydown'].forEach(ev => window.addEventListener(ev, bump, { passive: true }));
@@ -969,7 +1053,17 @@
        so the Riyadh/district views do not need them); before, the whole start-up waited for this. */
     map.getSource('parcels').setData(PAR); map.getSource('review').setData(REVIEW_FC);
     /* v1.21: side-length labels are built from the base parcels once the first view is on screen */
-    if (SIDES) setTimeout(() => { const b = SIDES.build([...BASE_UID.values()]); SIDE_BUILD = b; map.getSource('sides').setData(b.fc); }, 0);
+    if (SIDES) {
+      setTimeout(() => {
+        try {
+          const b = SIDES.build([...BASE_UID.values()]);
+          SIDE_BUILD = b;
+          if (map.getSource('sides')) map.getSource('sides').setData(b.fc);
+        } catch (e) {
+          console.warn('[Haramala Map] Sides build error:', e);
+        }
+      }, isMobile ? 300 : 0);
+    }
     if (window.AridImagery) window.AridImagery.init({ map, toast, ZO, TS });   // map-type switch (separate imagery layer; parcels untouched)
     Promise.all([loadSales(), STORE ? STORE.ready.catch(() => null) : null]).then(([ok]) => {
       salesLoaded = ok;
@@ -982,7 +1076,10 @@
       if (window.AridLand) window.AridLand.init();
       if (window.AridAdmin) window.AridAdmin.init();
       window.__APP_READY = true;
+      let _urlAutoZoomDone = false;
       (function handleUrlAutoZoom() {
+        if (_urlAutoZoomDone) return;
+        _urlAutoZoomDone = true;
         try {
           const sp = new URLSearchParams(window.location.search);
           const rawPlan = (sp.get('plan') || '').trim();
@@ -1020,7 +1117,7 @@
         }
       })();
     });
-    setLevel('riyadh');
+    setLevel(isMobile ? (selected ? 'parcel' : 'plan') : 'riyadh');
     $('lg-review').hidden = !REVIEW_FC.features.length;
   });
   // test hooks (used by the automated checks; harmless in production)
