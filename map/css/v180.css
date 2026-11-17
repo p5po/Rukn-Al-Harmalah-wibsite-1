@@ -1,0 +1,32 @@
+/* v1.8 TEST — landmarks and distances (separate from app.css) */
+.v18-h{margin:0 0 .7rem;font-size:var(--t-md);font-weight:600;color:var(--gold-hi)}
+.v18-list{display:flex;flex-direction:column;gap:.45rem}
+.v18-list button{display:flex;align-items:center;gap:.8rem;padding:.6rem .8rem;border-radius:var(--r-sm);background:var(--raised);text-align:start;border:1px solid transparent}
+.v18-list button.on{border-color:var(--gold)}
+.v18-list button:active{background:#4a463e}
+.v18-ic{flex:none;width:2.4rem;height:2.4rem;border-radius:50%;background:#26241f;border:2px solid var(--c);display:flex;align-items:center;justify-content:center}
+.v18-ic svg{width:1.45rem;height:1.45rem;fill:var(--c)}
+.v18-t{display:flex;flex-direction:column;min-width:0;line-height:1.35}
+.v18-t b{font-weight:600;font-size:var(--t-md)}
+.v18-t small{font-size:var(--t-xs);color:var(--dust)}
+.v18-row{padding:.75rem 0;border-top:1px solid var(--line)}
+.v18-row:first-child{border-top:0;padding-top:0}
+.v18-dest{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.v18-dest b{font-size:var(--t-md);font-weight:600}
+.v18-dest small{font-size:var(--t-sm);color:var(--dust)}
+.v18-km{font-size:var(--t-lg);font-weight:700;color:var(--gold-hi);margin-top:.2rem}
+.v18-km span{font-size:var(--t-sm);font-weight:500;color:var(--sand)}
+.v18-sub{font-size:var(--t-sm);color:var(--dust);line-height:1.5}
+.v18-show{margin-top:.5rem;padding:.55rem 1rem;border-radius:999px;border:1px solid var(--gold);color:var(--gold-hi);font-size:var(--t-sm);font-weight:500}
+.v18-show[aria-pressed="true"],.v18-show:active{background:var(--gold);color:var(--on-gold)}
+.v18-chip{font-size:var(--t-sm);color:var(--dust)}
+.v18-title{margin:.3rem 0 .8rem;font-size:var(--t-lg);font-weight:700;color:var(--gold-hi);line-height:1.35}
+.v18-note{margin:.9rem 0 0;font-size:var(--t-sm);line-height:1.6;color:var(--sand)}
+.v18-note[hidden]{display:none}
+/* while a parcel card is open (app.js adds .compact) the lists fold away so the parcel card stays fully visible */
+.panel.compact .v18-places,.panel.compact .v18-dist{display:none}
+.v18-card .facts{display:block}
+.v18-card .facts dt{font-size:var(--t-sm);margin-top:.55rem}
+.v18-card .facts dt:first-child{margin-top:0}
+.v18-card .facts dd{margin:.1rem 0 0}
+.v18-card bdi,.v18-dist bdi{white-space:nowrap}

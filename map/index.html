@@ -1,125 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>خريطة مخططات وأراضي حي عريض التفاعلية | شركة ركن الحراملة العقارية</title>
-  <meta name="description" content="استعرض مخططات وقطع أراضي حي عريض بالرياض تفاعلياً، ابحث برقم المخطط ورقم القطعة واستفسر مباشرة عبر شركة ركن الحراملة العقارية.">
-  
-  <link rel="icon" type="image/png" href="../images/S-gold-black-logo.png">
-
-  <!-- Google Fonts: Cairo -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-
-  <!-- Custom Map CSS -->
-  <link rel="stylesheet" href="css/map.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>خريطة حي عريض — ركن الحراملة العقارية</title>
+<link rel="stylesheet" href="lib/maplibre-gl.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/v180.css">
+<link rel="stylesheet" href="css/land.css">
+<link rel="stylesheet" href="css/v125.css">
+<link rel="stylesheet" href="css/v131.css">
 </head>
 <body>
+<div id="map" aria-label="الخريطة"></div>
 
-  <!-- Fullscreen Map Canvas -->
-  <div id="map-container"></div>
+<header class="topbar">
+  <img class="brand" src="assets/logo_rukn_gold_light.svg" alt="شركة ركن الحراملة العقارية">
+  <nav class="trail" id="trail" aria-label="مستوى العرض">
+    <button data-level="riyadh">الرياض</button>
+    <button data-level="arid">حي عريض</button>
+    <button data-level="plan">المخططات</button>
+    <button data-level="parcel" id="trail-parcel" hidden></button>
+  </nav>
+  <div class="modesw" id="modesw" role="group" aria-label="وضع الاستخدام">
+    <button data-mode="view" aria-pressed="true">وضع العرض</button>
+    <button data-mode="admin" aria-pressed="false">وضع الإدارة</button>
+  </div>
+  <button class="home" id="btn-home">العودة إلى الرياض</button>
+  <a href="../index.html" class="home" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;" title="العودة للموقع الرئيسي">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    العودة للموقع الرئيسي
+  </a>
+</header>
 
-  <!-- UI Controls Layer (Hidden automatically in ?bg=1 mode) -->
-  <div class="map-ui-layer">
-    <!-- Top Header -->
-    <header class="map-header">
-      <div class="map-brand">
-        <img src="../images/L-gold-black-logo.png" alt="شركة ركن الحراملة العقارية" class="map-brand-logo" onerror="this.onerror=null; this.src='../images/S-gold-black-logo.png';">
-        <div class="map-brand-text">
-          <h1>خريطة مخططات حي عريض التفاعلية</h1>
-          <p>شركة ركن الحراملة العقارية • الرياض</p>
-        </div>
-      </div>
+<aside class="panel" id="panel">
+  <section class="hint" id="hint"></section>
 
-      <div class="map-header-actions">
-        <a href="../index.html" class="btn-back-home" title="العودة للموقع الرئيسي">
-          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-          </svg>
-          <span>العودة للموقع الرئيسي</span>
-        </a>
-      </div>
-    </header>
-
-    <!-- Floating Filter & Search Panel -->
-    <div class="map-controls-panel">
-      <!-- Search Card -->
-      <div class="map-search-card">
-        <div class="search-input-group">
-          <svg width="18" height="18" fill="none" stroke="#C5A059" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-          <input 
-            type="text" 
-            id="map-search-input" 
-            placeholder="ابحث برقم المخطط أو القطعة (مثال: 2744 أو 101)..."
-          >
-        </div>
-      </div>
-
-      <!-- Quick Plan Switcher Pills -->
-      <div class="plan-pills">
-        <button class="plan-pill active" data-plan="2744" onclick="selectPlan('2744')">مخطط 2744</button>
-        <button class="plan-pill" data-plan="2745" onclick="selectPlan('2745')">مخطط 2745 (الذهبي)</button>
-        <button class="plan-pill" data-plan="3045" onclick="selectPlan('3045')">مخطط 3045</button>
-        <button class="plan-pill" data-plan="3046" onclick="selectPlan('3046')">مخطط 3046</button>
-        <button class="plan-pill" data-plan="2746" onclick="selectPlan('2746')">مخطط 2746 (الأمني)</button>
-        <button class="plan-pill" data-plan="2702" onclick="selectPlan('2702')">مخطط 2702</button>
-        <button class="plan-pill" data-plan="3097" onclick="selectPlan('3097')">مخطط 3097</button>
-        <button class="plan-pill" onclick="showAllAreed()">عرض عريض كاملة</button>
-      </div>
+  <section class="search" aria-label="البحث عن قطعة">
+    <div class="smode" id="smode" role="group" aria-label="نوع البحث">
+      <button data-m="parcel" aria-pressed="true">رقم القطعة</button>
+      <button data-m="plan" aria-pressed="false">رقم المخطط</button>
     </div>
+    <label id="search-label">ابحث برقم القطعة</label>
+    <div class="qrow">
+      <output id="q" class="qbox" aria-live="polite"></output>
+      <button class="go" id="btn-search">بحث</button>
+    </div>
+    <div class="keypad" id="keypad">
+      <button>1</button><button>2</button><button>3</button>
+      <button>4</button><button>5</button><button>6</button>
+      <button>7</button><button>8</button><button>9</button>
+      <button data-k="/أ" aria-label="إضافة /أ"><bdi dir="ltr">/أ</bdi></button><button>0</button><button data-k="del" aria-label="حذف آخر رقم"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8.5 5H20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H8.5L3 12z"/><path d="M11.5 9.5l5 5M16.5 9.5l-5 5"/></svg></button>
+    </div>
+    <div class="results" id="results"></div>
+    <button class="again" id="btn-again">البحث عن قطعة أخرى</button>
+  </section>
 
-    <!-- Selected Parcel Details Drawer / Bottom Sheet -->
-    <div id="parcel-drawer" class="parcel-drawer">
-      <div class="parcel-drawer-header">
-        <div class="parcel-drawer-title">
-          <h3 id="drawer-plan-title">مخطط 2744 • قطعة 101</h3>
-          <p id="drawer-sector">سكني • ضاحية عريض</p>
-        </div>
-        <button class="btn-close-drawer" onclick="closeParcelDrawer()" title="إغلاق">
-          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
+  <section class="card" id="card" hidden>
+    <div class="card-head">
+      <span class="card-label">قطعة رقم</span>
+      <button class="close" id="btn-clear" aria-label="إلغاء التحديد">إغلاق</button>
+    </div>
+    <div class="pno" id="c-no"></div>
+    <p class="svc-use" id="c-use" hidden></p>
+    <dl class="facts">
+      <dt>المخطط</dt><dd id="c-plan"></dd>
+      <dt>المساحة</dt><dd id="c-area"></dd>
+      <dt id="c-sides-dt" hidden>أطوال الأضلاع</dt><dd id="c-sides" hidden></dd>
+      <dt id="c-gsides-dt" hidden>أطوال محسوبة هندسيًا</dt><dd id="c-gsides" class="gsides" hidden></dd>
+      <dt id="c-status-dt">حالة البيع</dt><dd id="c-status-dd"><span class="status" id="c-status"></span></dd>
+      <dt id="c-price-dt" hidden>السعر</dt><dd id="c-price" hidden></dd>
+      <dt id="c-ppm-dt" hidden>سعر المتر</dt><dd id="c-ppm" hidden></dd>
+      <dt id="c-notes-dt" hidden>ملاحظات</dt><dd id="c-notes" hidden></dd>
+      <dt id="c-sec-dt" hidden>رقم آخر مدوّن</dt><dd id="c-sec" hidden></dd>
+      <dt id="c-gmap-dt">Google Maps Location</dt><dd id="c-gmap" class="gmap"></dd>
+      <dt id="c-upd-dt">آخر تحديث</dt><dd id="c-upd"></dd>
+      <dt>المعرّف</dt><dd><bdi dir="ltr" class="num uid" id="c-uid"></bdi></dd>
+    </dl>
+    <p class="warn" id="c-warn" hidden></p>
+    <div class="review" id="c-review" hidden><b>قيد المراجعة</b><span id="c-review-txt"></span></div>
+    <div class="adm-actions" id="c-admin" hidden></div>
+    <p class="fine" id="c-fine">المساحة تقريبية وليست من الصك.</p>
+  </section>
+</aside>
 
-      <!-- Specifications Grid -->
-      <div class="parcel-specs-grid">
-        <div class="spec-cell">
-          <span class="spec-cell-label">المساحة</span>
-          <span id="drawer-area" class="spec-cell-val">450 م²</span>
-        </div>
-        <div class="spec-cell">
-          <span class="spec-cell-label">الشارع</span>
-          <span id="drawer-streets" class="spec-cell-val">20م شمالي</span>
-        </div>
-        <div class="spec-cell">
-          <span class="spec-cell-label">الأبعاد</span>
-          <span id="drawer-dimensions" class="spec-cell-val">15م × 30م</span>
-        </div>
-      </div>
+<div class="zoom">
+  <button id="z-in" aria-label="تكبير"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></button>
+  <button id="z-out" aria-label="تصغير"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 12h16"/></svg></button>
+</div>
 
-      <!-- Actions -->
-      <div class="parcel-actions">
-        <a id="drawer-whatsapp-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-drawer-whatsapp">
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-          </svg>
-          <span>استفسر عن هذه القطعة</span>
-        </a>
-      </div>
+<div class="maptype" id="maptype">
+  <div class="mt-pop" id="mt-pop" role="dialog" aria-labelledby="mt-title" hidden>
+    <div class="mt-head"><span class="mt-title" id="mt-title">نوع الخريطة</span><button class="mt-x" id="mt-x" aria-label="إغلاق قائمة نوع الخريطة">إغلاق</button></div>
+    <button class="mt-opt" data-mode="map" aria-pressed="true">
+      <span class="mt-thumb th-map" aria-hidden="true"></span>
+      <span class="mt-txt"><b>الخريطة الحالية</b><small>الطرق والمخططات والقطع — تعمل دون إنترنت</small></span>
+      <span class="mt-check" aria-hidden="true"></span>
+    </button>
+    <button class="mt-opt" data-mode="real" aria-pressed="false">
+      <span class="mt-thumb th-real" aria-hidden="true"></span>
+      <span class="mt-txt"><b>العرض الواقعي</b><small>رسم توضيحي يشبه الصور الجوية — ليس صورة حقيقية — يعمل دون إنترنت</small></span>
+      <span class="mt-check" aria-hidden="true"></span>
+    </button>
+    <button class="mt-opt" data-mode="sat" aria-pressed="false">
+      <span class="mt-thumb th-sat" aria-hidden="true"></span>
+      <span class="mt-txt"><b>صور الأقمار الصناعية</b><small id="mt-sat-sub"></small></span>
+      <span class="mt-check" aria-hidden="true"></span>
+    </button>
+    <p class="mt-msg" id="mt-msg" role="status" hidden></p>
+    <div class="mt-confirm" id="mt-confirm" hidden>
+      <p id="mt-confirm-txt"></p>
+      <div class="mt-confirm-row"><button class="mt-yes" id="mt-yes">متابعة والاتصال بالإنترنت</button><button class="mt-no" id="mt-no">إلغاء</button></div>
     </div>
   </div>
+  <button class="mt-btn" id="mt-btn" aria-expanded="false" aria-controls="mt-pop">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="m2.5 12 9.5 5 9.5-5"/><path d="m2.5 16 9.5 5 9.5-5"/></svg>
+    <span class="mt-btn-txt"><span class="mt-btn-l">نوع الخريطة</span><span class="mt-btn-v" id="mt-cur">الخريطة الحالية</span></span>
+  </button>
+</div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <!-- Map Engine Script -->
-  <script src="js/map.js"></script>
+<div class="legend" id="legend">
+  <span><i class="sw s-available"></i>متاحة</span>
+  <span><i class="sw s-reserved"></i>محجوزة</span>
+  <span><i class="sw s-sold"></i>مباعة</span>
+  <span><i class="sw s-unknown"></i>غير محددة</span>
+  <span><i class="sw s-service"></i>خدمات</span>
+  <span id="lg-review" hidden><i class="sw s-review"></i>قيد المراجعة</span>
+  <span class="lg-unit">الأطوال بالمتر: <b class="lg-s">مسجلة</b> · <b class="lg-g">محسوبة هندسيًا</b></span>
+</div>
+
+<!-- v1.16: footer disclaimer removed at the owner's request; only the map-data credits remain (OpenStreetMap / imagery licences require them) -->
+<footer class="disclaimer" id="disclaimer">
+  <span class="sat-note" id="sat-note" hidden></span>
+  <span class="attr" dir="ltr"><span>© OpenStreetMap contributors</span><span id="sat-attr" hidden></span></span>
+</footer>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<section class="diag" id="diag" hidden aria-label="معلومات للموظفين">
+  <div class="diag-head"><h2>معلومات تشغيلية للموظفين</h2><button id="diag-close">إغلاق</button></div>
+  <div id="diag-body"></div>
+</section>
+
+<script src="lib/maplibre-gl.js"></script>
+<script src="lib/qrcode-generator.js"></script>
+<script src="data/meta.js"></script>
+<script src="data/glyphs_embedded.js"></script>
+<script src="data/rtl_plugin_embedded.js"></script>
+<script src="data/basemap_osm.js"></script>
+<script src="data/suhail_v130.js"></script>
+<script src="data/suhail_v140_2702.js"></script>
+<script src="data/suhail_v150_2817.js"></script>
+<script src="data/suhail_v160_7plans.js"></script>
+<script src="data/suhail_v170_2plans.js"></script>
+<script src="data/suhail_v190_streets.js"></script>
+<script src="data/suhail_v110_streets.js"></script>
+<script src="data/v111_road_fixes.js"></script>
+<script src="data/suhail_v120_3022_3258.js"></script>
+<script src="data/v125_road_fixes.js"></script>
+<script src="data/v126_road_audit.js"></script>
+<script src="data/v127_road_joins.js"></script>
+<script src="data/v128_interchanges.js"></script>
+<script src="data/v132_basemap.js"></script>
+<script src="data/v129_ar_names.js"></script>
+<script src="data/v130_basemap_trim.js"></script>
+<script src="data/v133_basemap_fix.js"></script>
+<script src="data/registry.js"></script>
+<script src="data/sales_status.js"></script>
+<script src="data/parcel_review.js"></script>
+<script src="data/location_release.js"></script>
+<script src="data/imagery_config.js"></script>
+<script src="data/admin/admin_store.js"></script>
+<script src="data/side_lengths.js"></script>
+<script src="data/side_lengths_geom.js"></script>
+<script src="js/sides.js"></script>
+<script src="data/admin/admin_auth.js"></script>
+<script src="data/admin/settings.js"></script>
+<script src="js/admin_auth.js"></script>
+<script src="js/land_store.js"></script>
+<script src="js/realistic.js"></script>
+<script src="js/imagery.js"></script>
+<script src="js/app.js"></script>
+<script src="data/v180_overlay.js"></script>
+<script src="data/v130_nafud_fixes.js"></script>
+<script src="data/v132_interchanges.js"></script>
+<script src="js/v180.js"></script>
+<script src="data/v127_planned_roads.js"></script>
+<script src="js/planned.js"></script>
+<script src="js/land_view.js"></script>
+<script src="js/land_admin.js"></script>
+<script src="data/v131_street_lengths.js"></script>
+<script src="data/v134_street_widths.js"></script>
+<script src="js/street_len.js"></script>
 </body>
 </html>

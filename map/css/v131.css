@@ -1,0 +1,50 @@
+/* v1.31 — street lengths: street card, «الشارع» search mode, length-label switch */
+.st-name{font-size:2.3rem;font-weight:700;line-height:1.25;color:var(--gold-hi);margin:.35rem 0 .9rem;overflow-wrap:anywhere}
+.st-card .facts dd{margin:0}
+.st-card .facts dd small.st-kind{display:block;color:var(--dust);font-size:var(--t-xs);line-height:1.45;margin-top:.15rem}
+.st-card small.muted{color:var(--dust);font-size:.85em}
+.st-per{display:flex;flex-direction:column;gap:.15rem;font-size:var(--t-sm)}
+.st-chip{display:inline-block;padding:.2rem .75rem;border-radius:999px;font-size:var(--t-sm);font-weight:600;border:1px solid var(--line);background:var(--raised);color:var(--sand)}
+.st-chip.st-V{border-color:#7fa37a;color:#cfe3c9;background:rgba(127,163,122,.16)}
+.st-chip.st-G{border-color:#b39a63;color:#ecdcb4;background:rgba(201,162,78,.12)}
+.st-chip.st-R{border-color:#e0a24a;color:#f6d6a4;background:rgba(224,162,74,.16)}
+.st-det{margin:.8rem 0 0;padding:.6rem .8rem;border-radius:var(--r-sm);background:rgba(224,162,74,.10);border:1px solid rgba(224,162,74,.45);color:#f1dcb8;font-size:var(--t-sm);line-height:1.6}
+.st-card:not(.review) .st-det{background:var(--raised);border-color:var(--line);color:var(--dust)}
+.st-q-row{margin:.55rem 0 .2rem}
+.st-q{-webkit-user-select:text;user-select:text;touch-action:auto;width:100%;box-sizing:border-box;min-height:3.4rem;padding:.4rem .9rem;border-radius:var(--r-sm);
+  background:var(--ink);border:1px solid var(--line);color:var(--sand);font:inherit;font-size:var(--t-md)}
+.st-q:focus{outline:2px solid var(--gold);outline-offset:1px}
+.panel.compact .st-q-row{display:none}
+.sw.s-stl{width:1.7rem;height:.95rem;border-radius:.2rem;background:none;border:1.5px solid #f3dfae;display:inline-block;position:relative}
+.sw.s-stl::after{content:'م';position:absolute;inset:0;font-size:.62rem;line-height:.95rem;text-align:center;color:#f3dfae}
+.stl-row[aria-pressed="true"] .pl-sw{background:#b8923f}
+.st-card [hidden]{display:none!important}
+.st-cont{display:flex;flex-direction:column;align-items:flex-start;gap:.35rem}
+.st-link{padding:.35rem .8rem;border-radius:var(--r-sm);background:var(--raised);border:1px solid var(--line);color:var(--gold-hi);font:inherit;font-size:var(--t-sm);font-weight:600;text-align:start}
+.st-link small{color:var(--dust);font-weight:400}
+.st-link:active{background:#4a463e}
+.st-road{display:flex;flex-direction:column;align-items:flex-start;gap:.3rem}
+.st-road-len{font-weight:700;color:var(--gold-hi)}
+.st-agg{color:#e9cf96!important}
+.st-members{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin-top:.2rem}
+.st-link.cur{border-color:var(--gold);color:var(--on-gold);background:var(--gold-hi)}
+.st-link.cur small{color:var(--on-gold)}
+.st-link.unc{color:var(--sand);border-style:dashed}
+.st-arrow{color:var(--dust)}
+.st-members .st-link{padding:.2rem .6rem;font-size:var(--t-xs)}
+/* v1.32 — street widths */
+.st-width .st-w-val{font-weight:700;color:var(--gold-hi)}
+.st-w-na{color:var(--dust);font-weight:600}
+.st-chip.st-w-V,.st-chip.st-w-S{border-color:#7fa37a;color:#cfe3c9;background:rgba(127,163,122,.16)}
+.st-chip.st-w-D{border-color:#e0a24a;color:#f6d6a4;background:rgba(224,162,74,.16)}
+.st-chip.st-w-M{border-color:var(--line);color:var(--dust);background:var(--raised)}
+.st-w-chk{color:#e9cf96!important}
+/* v1.33 — width sources and segments */
+.st-chip.st-w-W{border-color:#7fa37a;color:#cfe3c9;background:rgba(127,163,122,.16)}
+.st-chip.st-w-P,.st-chip.st-w-Q{border-color:#8fb3c9;color:#d3e6f1;background:rgba(127,176,201,.16)}
+.st-chip.st-w-X{border-color:#c9a24e;color:#f1dfb4;background:rgba(201,162,78,.16)}
+.st-wsegs{margin:.35rem 0 .1rem;padding:0 1.2rem 0 0;font-size:var(--t-sm);line-height:1.55}
+.st-wsegs li{margin:.1rem 0}
+.st-wsegs b{color:var(--gold-hi)}
+.st-wsegs small{color:var(--dust)}
+#legend [hidden],.legend [hidden]{display:none!important}   /* v1.34: legend items with no parcels (e.g. «قيد المراجعة» when none is under review) stay hidden */

@@ -1,0 +1,8 @@
+id: copernicus_s2_2026-10-18_v113
+source: Copernicus Sentinel-2 L2A (B04/B03/B02 surface reflectance), 2026-10-18 (S2A_38RPN, S2B_38RQN, S2A_38QPM, S2B_38QQM), via Registry of Open Data on AWS
+license: Copernicus Sentinel data: free, full and open (commercial use allowed); attribution required
+attribution: Contains modified Copernicus Sentinel data 2026
+captured: 2026-10-18
+resolution_m: 10
+coverage_ar: كامل منطقة الخريطة (40 م)، وحول حي عريض 10 م — ألوان طبيعية معايرة على صور Maxar (عائلة صور القمر الصناعي في سهيل)
+test: False
