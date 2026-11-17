@@ -166,8 +166,8 @@ function parseCSVString(text) {
   }
 
   if (p.length === 0) return { data: [], meta: { fields: [] } };
-  const headers = p[0].map(h => h.trim());
-  const data = p.slice(1).map(r => {
+  const headers = p[0].map(h => (h ? h.trim().toLowerCase() : ''));
+  const data = p.slice(1).filter(r => r.some(cell => cell && cell.trim() !== '')).map(r => {
     const obj = {};
     headers.forEach((h, idx) => {
       obj[h] = r[idx] !== undefined ? r[idx].trim() : '';
@@ -200,66 +200,67 @@ function normalizePropertyRow(rawRow) {
 
   for (const [key, rawVal] of Object.entries(rawRow)) {
     if (!key) continue;
-    const k = key.trim().toLowerCase().replace(/[\r\n_-]/g, ' ');
+    const rawKey = key.trim().toLowerCase();
+    const cleanKey = rawKey.replace(/[\r\n_-]/g, ' ').replace(/\s+/g, ' ').trim();
     const val = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : '';
 
     // Plan Number (رقم المخطط)
-    if (!norm.plan_no && (k === 'plan_no' || k === 'plan no' || k === 'plan' || k === 'planno' || k.includes('رقم المخطط') || k.includes('المخطط') || k === 'مخطط')) {
+    if (!norm.plan_no && (rawKey === 'plan_no' || rawKey === 'planno' || cleanKey === 'plan no' || cleanKey === 'plan' || cleanKey.includes('مخطط'))) {
       norm.plan_no = val;
     }
     // Plot Number (رقم القطعة)
-    else if (!norm.plot_no && (k === 'plot_no' || k === 'plot no' || k === 'plot' || k === 'plotno' || k.includes('رقم القطعة') || k.includes('القطعة') || k === 'قطعة')) {
+    else if (!norm.plot_no && (rawKey === 'plot_no' || rawKey === 'plotno' || cleanKey === 'plot no' || cleanKey === 'plot' || cleanKey.includes('قطعة') || cleanKey.includes('قطعه'))) {
       norm.plot_no = val;
     }
     // Title
-    else if (!norm.title && (k === 'title' || k.includes('عنوان') || k.includes('اسم العقار') || k.includes('اسم العرض') || k.includes('وصف'))) {
+    else if (!norm.title && (rawKey === 'title' || cleanKey === 'title' || cleanKey.includes('عنوان') || cleanKey.includes('اسم') || cleanKey.includes('وصف'))) {
       norm.title = val;
     }
     // Type
-    else if (!norm.type && (k === 'type' || k.includes('نوع') || k.includes('تصنيف') || k.includes('صنف'))) {
+    else if (!norm.type && (rawKey === 'type' || cleanKey === 'type' || cleanKey.includes('نوع') || cleanKey.includes('تصنيف') || cleanKey.includes('صنف'))) {
       norm.type = val;
     }
     // District
-    else if (!norm.district && (k === 'district' || k.includes('حي') || k.includes('منطقة') || k.includes('منطقه'))) {
+    else if (!norm.district && (rawKey === 'district' || cleanKey === 'district' || cleanKey.includes('حي') || cleanKey.includes('منطقة') || cleanKey.includes('منطقه'))) {
       norm.district = val;
     }
     // Area
-    else if (!norm.area && (k === 'area' || k.includes('مساح'))) {
+    else if (!norm.area && (rawKey === 'area' || cleanKey === 'area' || cleanKey.includes('مساح'))) {
       norm.area = val;
     }
     // Streets
-    else if (!norm.streets && (k === 'streets' || k === 'street' || k.includes('شارع') || k.includes('شوارع') || k.includes('واجه'))) {
+    else if (!norm.streets && (rawKey === 'streets' || rawKey === 'street' || cleanKey.includes('شارع') || cleanKey.includes('شوارع') || cleanKey.includes('واجه'))) {
       norm.streets = val;
     }
     // Dimensions
-    else if (!norm.dimensions && (k === 'dimensions' || k.includes('أبعاد') || k.includes('ابعاد') || k.includes('أطوال') || k.includes('اطوال') || k.includes('حدود'))) {
+    else if (!norm.dimensions && (rawKey === 'dimensions' || rawKey === 'dimension' || cleanKey.includes('أبعاد') || cleanKey.includes('ابعاد') || cleanKey.includes('أطوال') || cleanKey.includes('اطوال') || cleanKey.includes('حدود'))) {
       norm.dimensions = val;
     }
     // Price
-    else if (!norm.price && (k === 'price' || k.includes('سعر') || k.includes('قيم') || k.includes('مبلغ'))) {
+    else if (!norm.price && (rawKey === 'price' || cleanKey === 'price' || cleanKey.includes('سعر') || cleanKey.includes('قيم') || cleanKey.includes('مبلغ'))) {
       norm.price = val;
     }
     // Status
-    else if (!norm.status && (k === 'status' || k.includes('حال') || k.includes('وضع'))) {
+    else if (!norm.status && (rawKey === 'status' || cleanKey === 'status' || cleanKey.includes('حال') || cleanKey.includes('وضع'))) {
       norm.status = val;
     }
     // Map URL (Google Maps)
-    else if (!norm.map_url && (k.includes('map') || k.includes('خريط') || k.includes('لوكيشن') || k.includes('موقع'))) {
+    else if (!norm.map_url && (rawKey === 'map_url' || rawKey === 'map' || cleanKey.includes('map') || cleanKey.includes('خريط') || cleanKey.includes('موقع') || cleanKey.includes('لوكيشن'))) {
       norm.map_url = val;
     }
     // Image URL
-    else if (!norm.image_url && (k.includes('image') || k.includes('img') || k.includes('photo') || k.includes('صور'))) {
+    else if (!norm.image_url && (rawKey === 'image_url' || rawKey === 'image' || rawKey === 'img' || cleanKey.includes('image') || cleanKey.includes('img') || cleanKey.includes('photo') || cleanKey.includes('صور'))) {
       norm.image_url = val;
     }
     // Legacy fallback ID
-    else if (!norm.id && (k === 'id' || k.includes('كود') || k.includes('معرف') || k.includes('رمز'))) {
+    else if (!norm.id && (rawKey === 'id' || cleanKey === 'id' || cleanKey.includes('كود') || cleanKey.includes('معرف') || cleanKey.includes('رمز'))) {
       norm.id = val;
     }
   }
 
   // Exact fallback if key names match the standard schema directly
   ['plan_no', 'plot_no', 'title', 'type', 'district', 'area', 'streets', 'dimensions', 'price', 'status', 'map_url', 'image_url', 'id'].forEach(col => {
-    if (rawRow[col] !== undefined && rawRow[col] !== null && String(rawRow[col]).trim() !== '') {
+    if (rawRow[col] !== undefined && rawRow[col] !== null && String(rawRow[col]).trim() !== '' && !norm[col]) {
       norm[col] = String(rawRow[col]).trim();
     }
   });
@@ -295,7 +296,8 @@ async function fetchProperties() {
       if (window.Papa) {
         parsedResult = Papa.parse(csvText, {
           header: true,
-          skipEmptyLines: 'greedy'
+          skipEmptyLines: true,
+          transformHeader: h => (h ? h.trim().toLowerCase() : '')
         });
       } else {
         parsedResult = parseCSVString(csvText);
@@ -309,7 +311,8 @@ async function fetchProperties() {
           Papa.parse(CSV_URL, {
             download: true,
             header: true,
-            skipEmptyLines: 'greedy',
+            skipEmptyLines: true,
+            transformHeader: h => (h ? h.trim().toLowerCase() : ''),
             complete: (res) => resolve(res),
             error: (err) => reject(err)
           });
@@ -321,30 +324,29 @@ async function fetchProperties() {
 
     // Process and log parsed results
     if (parsedResult) {
-      const rawHeaders = parsedResult.meta && parsedResult.meta.fields 
-        ? parsedResult.meta.fields 
-        : (parsedResult.data[0] ? Object.keys(parsedResult.data[0]) : []);
-
+      const fields = (parsedResult.meta && parsedResult.meta.fields) ? parsedResult.meta.fields : [];
       console.log("%c[ركن الحراملة] تم استلام الـ CSV بنجاح!", "color: #10B981; font-weight: bold;");
-      console.log("📋 الأعمدة المكتشفة في الشيت (Headers):", rawHeaders);
-      console.log(`📊 إجمالي الصفوف المستلمة: ${parsedResult.data ? parsedResult.data.length : 0}`);
+      console.log("📋 الأعمدة المكتشفة في الشيت (meta.fields):", fields);
+      console.log("📊 مصفوفة البيانات المستلمة (data array):", parsedResult.data);
 
       if (parsedResult.errors && parsedResult.errors.length > 0) {
         console.warn("⚠️ تنبيهات تحليل الـ CSV:", parsedResult.errors);
       }
 
-      // Map columns flexibly
+      // Map columns flexibly: a card renders as long as row has ANY valid identifier (plan_no, plot_no, title, or id)
+      // Optional fields (price, dimensions, streets, image_url, map_url) never block rendering
       if (parsedResult.data && Array.isArray(parsedResult.data)) {
         allProperties = parsedResult.data
           .map(normalizePropertyRow)
           .filter(row => {
-            const hasPlanOrPlot = (row.plan_no && row.plan_no !== "") || (row.plot_no && row.plot_no !== "");
-            const hasId = row.id && row.id !== "";
-            const hasTitle = row.title && row.title !== "";
-            return hasPlanOrPlot || hasTitle || hasId;
+            const hasPlan = Boolean(row.plan_no && String(row.plan_no).trim() !== "");
+            const hasPlot = Boolean(row.plot_no && String(row.plot_no).trim() !== "");
+            const hasId = Boolean(row.id && String(row.id).trim() !== "");
+            const hasTitle = Boolean(row.title && String(row.title).trim() !== "");
+            return hasPlan || hasPlot || hasId || hasTitle;
           });
 
-        console.log(`✅ العقارات الصالحة بعد المطابقة المرنة: ${allProperties.length}`);
+        console.log(`✅ العقارات الصالحة بعد المطابقة المرنة: ${allProperties.length}`, allProperties);
       } else {
         allProperties = [];
       }
@@ -796,8 +798,8 @@ function renderProperties() {
             ${typeBadgeHtml}
           </div>
 
-          <!-- Property ID -->
-          ${idBadgeHtml}
+          <!-- Property Plan & Plot Badge -->
+          ${planBadgeHtml}
         </div>
 
         <!-- Card Body -->
@@ -885,21 +887,25 @@ function initGsapAnimations() {
 
   // ScrollTrigger reveals on Section Titles & Service Cards
   if (typeof ScrollTrigger !== "undefined") {
-    // Service Cards Staggered Reveal
+    // Service Cards Staggered Reveal - 100% visible by default, smooth entrance without hiding
     const serviceCards = document.querySelectorAll("#services [data-reveal-card]");
     if (serviceCards.length > 0) {
+      serviceCards.forEach(c => {
+        c.style.opacity = "1";
+        c.style.visibility = "visible";
+      });
+
       gsap.from(serviceCards, {
         scrollTrigger: {
           trigger: "#services",
-          start: "top 80%",
+          start: "top 90%",
           toggleActions: "play none none none"
         },
-        y: 40,
-        opacity: 0,
-        scale: 0.96,
-        duration: 0.75,
+        y: 30,
+        duration: 0.7,
         stagger: 0.12,
-        ease: "power2.out"
+        ease: "power2.out",
+        clearProps: "all"
       });
     }
 
