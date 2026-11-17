@@ -95,8 +95,8 @@ function getStatusBadge(status) {
   }
   if (s.includes("متاح") || lower === "available") {
     return {
-      classes: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30",
-      dot: "bg-emerald-400",
+      classes: "bg-[#DFBE7B]/10 text-[#DFBE7B] border border-[#DFBE7B]/30",
+      dot: "bg-[#DFBE7B]",
       isSold: false
     };
   }
@@ -333,20 +333,15 @@ async function fetchProperties() {
         console.warn("⚠️ تنبيهات تحليل الـ CSV:", parsedResult.errors);
       }
 
-      // Map columns flexibly: a card renders as long as row has ANY valid identifier (plan_no, plot_no, title, or id)
-      // Optional fields (price, dimensions, streets, image_url, map_url) never block rendering
+      // Render EVERY non-empty data row immediately into #properties-grid
       if (parsedResult.data && Array.isArray(parsedResult.data)) {
         allProperties = parsedResult.data
           .map(normalizePropertyRow)
           .filter(row => {
-            const hasPlan = Boolean(row.plan_no && String(row.plan_no).trim() !== "");
-            const hasPlot = Boolean(row.plot_no && String(row.plot_no).trim() !== "");
-            const hasId = Boolean(row.id && String(row.id).trim() !== "");
-            const hasTitle = Boolean(row.title && String(row.title).trim() !== "");
-            return hasPlan || hasPlot || hasId || hasTitle;
+            return Object.values(row).some(v => v !== undefined && v !== null && String(v).trim() !== "");
           });
 
-        console.log(`✅ العقارات الصالحة بعد المطابقة المرنة: ${allProperties.length}`, allProperties);
+        console.log(`✅ العقارات الصالحة بعد المطابقة من الشيت: ${allProperties.length}`, allProperties);
       } else {
         allProperties = [];
       }
@@ -666,7 +661,7 @@ function renderProperties() {
               href="${haramalaMapUrl}" 
               target="_blank" 
               rel="noopener noreferrer"
-              class="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-[#C5A059]/40 bg-[#C5A059]/10 text-[#DFBE7B] hover:text-white hover:border-[#C5A059] hover:bg-[#C5A059]/20 text-xs font-semibold transition shadow-sm"
+              class="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-[#C5A059] bg-[#C5A059]/10 text-[#DFBE7B] hover:text-black hover:bg-[#C5A059] text-xs font-semibold transition shadow-sm"
               title="عرض المخطط والقطعة في خريطة الحراملة"
             >
               <svg class="w-3.5 h-3.5 text-[#DFBE7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -694,9 +689,9 @@ function renderProperties() {
             href="${whatsappLink}" 
             target="_blank" 
             rel="noopener noreferrer"
-            class="whatsapp-cta-glow w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl gold-gradient-bg text-black font-bold text-xs shadow-md hover:scale-[1.02] transition-transform"
+            class="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#1A1A1A] border border-[#C5A059] text-[#DFBE7B] hover:bg-[#C5A059] hover:text-black font-bold text-xs transition-all shadow-md"
           >
-            <svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
             </svg>
             <span>استفسر عبر واتساب</span>
@@ -710,7 +705,7 @@ function renderProperties() {
             href="${haramalaMapUrl}" 
             target="_blank" 
             rel="noopener noreferrer"
-            class="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-[#C5A059]/40 bg-[#C5A059]/10 text-[#DFBE7B] hover:text-white hover:border-[#C5A059] hover:bg-[#C5A059]/20 text-xs font-semibold transition shadow-sm"
+            class="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-[#C5A059] bg-[#C5A059]/10 text-[#DFBE7B] hover:text-black hover:bg-[#C5A059] text-xs font-semibold transition shadow-sm"
             title="عرض المخطط والقطعة في خريطة الحراملة"
           >
             <svg class="w-3.5 h-3.5 text-[#DFBE7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -723,9 +718,9 @@ function renderProperties() {
             href="${whatsappLink}" 
             target="_blank" 
             rel="noopener noreferrer"
-            class="whatsapp-cta-glow w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl gold-gradient-bg text-black font-bold text-xs shadow-md hover:scale-[1.02] transition-transform"
+            class="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#1A1A1A] border border-[#C5A059] text-[#DFBE7B] hover:bg-[#C5A059] hover:text-black font-bold text-xs transition-all shadow-md"
           >
-            <svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
           </svg>
           <span>استفسر عبر واتساب</span>
@@ -753,9 +748,9 @@ function renderProperties() {
             href="${whatsappLink}" 
             target="_blank" 
             rel="noopener noreferrer"
-            class="whatsapp-cta-glow w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl gold-gradient-bg text-black font-bold text-xs shadow-md hover:scale-[1.02] transition-transform"
+            class="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#1A1A1A] border border-[#C5A059] text-[#DFBE7B] hover:bg-[#C5A059] hover:text-black font-bold text-xs transition-all shadow-md"
           >
-            <svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
           </svg>
           <span>استفسر عبر واتساب</span>
@@ -769,9 +764,9 @@ function renderProperties() {
             href="${whatsappLink}" 
             target="_blank" 
             rel="noopener noreferrer"
-            class="whatsapp-cta-glow w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl gold-gradient-bg text-black font-bold text-xs shadow-md hover:scale-[1.02] transition-transform"
+            class="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-[#1A1A1A] border border-[#C5A059] text-[#DFBE7B] hover:bg-[#C5A059] hover:text-black font-bold text-xs transition-all shadow-md"
           >
-            <svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
           </svg>
           <span>استفسر عبر واتساب</span>
@@ -781,7 +776,7 @@ function renderProperties() {
     }
 
     return `
-      <div class="property-card liquid-metal-card overflow-hidden flex flex-col group cursor-pointer" data-reveal-card>
+      <div class="property-card liquid-metal-card overflow-hidden flex flex-col group cursor-pointer opacity-100" data-reveal-card>
         <!-- MengTo Reveal Hover Spotlight Surface Overlay -->
         <div class="reveal-spotlight"></div>
 
@@ -917,24 +912,24 @@ function initGsapAnimations() {
  * Animate property cards entrance on load / filter change
  */
 function animateCardsEntrance() {
-  if (typeof gsap === "undefined") return;
-
   const cards = document.querySelectorAll(".property-card");
   if (cards.length === 0) return;
 
-  gsap.fromTo(
-    cards,
-    { y: 35, opacity: 0, scale: 0.97 },
-    {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      duration: 0.65,
-      ease: "power2.out",
-      stagger: 0.07,
-      clearProps: "transform,opacity"
-    }
-  );
+  // Ensure cards are always fully visible immediately
+  cards.forEach(c => {
+    c.style.opacity = "1";
+    c.style.visibility = "visible";
+  });
+
+  if (typeof gsap === "undefined") return;
+
+  gsap.from(cards, {
+    y: 20,
+    duration: 0.5,
+    ease: "power2.out",
+    stagger: 0.05,
+    clearProps: "all"
+  });
 
   if (typeof ScrollTrigger !== "undefined") {
     ScrollTrigger.refresh();
